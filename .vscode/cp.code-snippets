@@ -1,0 +1,4204 @@
+{
+ "gen": {
+  "prefix": [
+   "gen"
+  ],
+  "body": [
+   "#include <bits/stdc++.h>",
+   "using namespace std;",
+   "",
+   "int main(int argc, char** argv) {",
+   "    mt19937_64 rng(atoi(argv[1]));",
+   "    auto rnd = [&](long long a, long long b) { return (long long)(rng() % (b - a + 1)) + a; };",
+   "    int n = rnd(1, 8);",
+   "    printf(\"%d\\\\n\", n);",
+   "    for (int i = 0; i < n; i++) printf(\"%lld \", rnd(1, 10));",
+   "    printf(\"\\\\n\");",
+   "}"
+  ],
+  "description": "[00_template] Generador de casos aleatorios para stress test (semilla en argv[1])"
+ },
+ "template": {
+  "prefix": [
+   "template"
+  ],
+  "body": [
+   "#include <bits/stdc++.h>",
+   "using namespace std;",
+   "",
+   "using ll = long long;",
+   "using ull = unsigned long long;",
+   "using ld = long double;",
+   "using pii = pair<int, int>;",
+   "using pll = pair<ll, ll>;",
+   "using vi = vector<int>;",
+   "using vll = vector<ll>;",
+   "#define all(x) (x).begin(), (x).end()",
+   "#define rall(x) (x).rbegin(), (x).rend()",
+   "#define sz(x) ((int)(x).size())",
+   "#define pb push_back",
+   "#define eb emplace_back",
+   "#define fi first",
+   "#define se second",
+   "#define rep(i, a, b) for (int i = (a); i < (b); i++)",
+   "#define per(i, a, b) for (int i = (b) - 1; i >= (a); i--)",
+   "",
+   "const ll INF = (ll)4e18;",
+   "const int INFI = 1e9;",
+   "const int MOD = 1e9 + 7;",
+   "const ld EPS = 1e-9;",
+   "const ld PI = acosl(-1);",
+   "mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());",
+   "",
+   "#ifdef LOCAL",
+   "template <class A, class B> ostream& operator<<(ostream& o, const pair<A, B>& p) { return o << \"(\" << p.first << \", \" << p.second << \")\"; }",
+   "template <class T, class = decltype(begin(declval<T>())), class = enable_if_t<!is_same<T, string>::value>>",
+   "ostream& operator<<(ostream& o, const T& c) { o << \"{\"; bool f = 0; for (auto& x : c) { if (f) o << \", \"; f = 1; o << x; } return o << \"}\"; }",
+   "void dbg_out() { cerr << endl; }",
+   "template <class H, class... T> void dbg_out(H h, T... t) { cerr << \" \" << h; dbg_out(t...); }",
+   "#define dbg(...) cerr << \"[\" << #__VA_ARGS__ << \"]:\", dbg_out(__VA_ARGS__)",
+   "#else",
+   "#define dbg(...)",
+   "#endif",
+   "",
+   "void solve() {",
+   "    ",
+   "}",
+   "",
+   "int main() {",
+   "    ios::sync_with_stdio(false);",
+   "    cin.tie(nullptr);",
+   "    int t = 1;",
+   "    // cin >> t;",
+   "    while (t--) solve();",
+   "    return 0;",
+   "}"
+  ],
+  "description": "[00_template] Plantilla base: headers, typedefs, macros, rng, debug (-DLOCAL), main con multi-test"
+ },
+ "template_min": {
+  "prefix": [
+   "template_min"
+  ],
+  "body": [
+   "#include <bits/stdc++.h>",
+   "using namespace std;",
+   "using ll = long long;",
+   "",
+   "int main() {",
+   "    ios::sync_with_stdio(false);",
+   "    cin.tie(nullptr);",
+   "    ",
+   "    return 0;",
+   "}"
+  ],
+  "description": "[00_template] Plantilla minima (sin macros), para empezar rapido"
+ },
+ "disjoint_sparse_table": {
+  "prefix": [
+   "disjoint_sparse_table"
+  ],
+  "body": [
+   "struct DisjointSparse {",
+   "    using T = ll;",
+   "    static T op(T a, T b) { return a + b; } // CAMBIAR",
+   "    static constexpr T ID = 0;               // CAMBIAR",
+   "    int n, lg; vector<vector<T>> t;",
+   "    DisjointSparse(const vector<T>& a = {}) {",
+   "        n = 2; while (n < (int)a.size()) n <<= 1;",
+   "        lg = __lg(n);",
+   "        t.assign(lg + 1, vector<T>(n, ID));",
+   "        for (int i = 0; i < (int)a.size(); i++) t[0][i] = a[i];",
+   "        for (int h = 1; h <= lg; h++) {",
+   "            for (int s = 0; s < n; s += 1 << h) {",
+   "                int mid = s + (1 << (h - 1));",
+   "                t[h][mid - 1] = t[0][mid - 1];",
+   "                for (int i = mid - 2; i >= s; i--) t[h][i] = op(t[0][i], t[h][i + 1]);",
+   "                t[h][mid] = t[0][mid];",
+   "                for (int i = mid + 1; i < s + (1 << h); i++) t[h][i] = op(t[h][i - 1], t[0][i]);",
+   "            }",
+   "        }",
+   "    }",
+   "    T query(int l, int r) { // [l, r] inclusivo",
+   "        if (l == r) return t[0][l];",
+   "        int h = __lg(l ^ r) + 1;",
+   "        return op(t[h][l], t[h][r]);",
+   "    }",
+   "};"
+  ],
+  "description": "[01_structures] Disjoint sparse table: query O(1) para operaciones asociativas NO idempotentes (suma, producto, ...) | O(n log n) build, O(1) query"
+ },
+ "dsu": {
+  "prefix": [
+   "dsu"
+  ],
+  "body": [
+   "struct DSU {",
+   "    vector<int> p, s; int comps;",
+   "    DSU(int n = 0) { init(n); }",
+   "    void init(int n) { p.resize(n); iota(all(p), 0); s.assign(n, 1); comps = n; }",
+   "    int find(int x) { while (p[x] != x) x = p[x] = p[p[x]]; return x; }",
+   "    bool same(int a, int b) { return find(a) == find(b); }",
+   "    bool unite(int a, int b) {",
+   "        a = find(a); b = find(b);",
+   "        if (a == b) return false;",
+   "        if (s[a] < s[b]) swap(a, b);",
+   "        p[b] = a; s[a] += s[b]; comps--;",
+   "        return true;",
+   "    }",
+   "    int size(int x) { return s[find(x)]; }",
+   "};"
+  ],
+  "description": "[01_structures] DSU / Union-Find con compresion de caminos y union por tamano | O(alpha(n)) por operacion"
+ },
+ "dsu_parity": {
+  "prefix": [
+   "dsu_parity"
+  ],
+  "body": [
+   "struct ParityDSU {",
+   "    vector<int> p, par, s; bool bip = true;",
+   "    ParityDSU(int n = 0) : p(n), par(n, 0), s(n, 1) { iota(all(p), 0); }",
+   "    pair<int, int> find(int x) { // (raiz, paridad respecto a la raiz)",
+   "        if (p[x] == x) return {x, 0};",
+   "        auto [r, d] = find(p[x]);",
+   "        p[x] = r; par[x] ^= d;",
+   "        return {r, par[x]};",
+   "    }",
+   "    void unite(int a, int b) { // arista entre a y b (deben tener colores distintos)",
+   "        auto [ra, da] = find(a); auto [rb, db] = find(b);",
+   "        if (ra == rb) { if (da == db) bip = false; return; }",
+   "        if (s[ra] < s[rb]) swap(ra, rb);",
+   "        p[rb] = ra; par[rb] = da ^ db ^ 1; s[ra] += s[rb];",
+   "    }",
+   "};"
+  ],
+  "description": "[01_structures] DSU con paridad (detecta ciclos impares / grafo bipartito dinamico) | O(log n) amortizado"
+ },
+ "dsu_rollback": {
+  "prefix": [
+   "dsu_rollback"
+  ],
+  "body": [
+   "struct RollbackDSU {",
+   "    vector<int> e; vector<array<int, 4>> st;",
+   "    RollbackDSU(int n = 0) : e(n, -1) {}",
+   "    int find(int x) { return e[x] < 0 ? x : find(e[x]); }",
+   "    bool same(int a, int b) { return find(a) == find(b); }",
+   "    int size(int x) { return -e[find(x)]; }",
+   "    int snapshot() { return st.size(); }",
+   "    bool unite(int a, int b) {",
+   "        a = find(a); b = find(b);",
+   "        if (a == b) return false;",
+   "        if (e[a] > e[b]) swap(a, b);",
+   "        st.push_back({a, e[a], b, e[b]});",
+   "        e[a] += e[b]; e[b] = a;",
+   "        return true;",
+   "    }",
+   "    void rollback(int t) {",
+   "        while ((int)st.size() > t) {",
+   "            auto& s = st.back();",
+   "            e[s[0]] = s[1]; e[s[2]] = s[3];",
+   "            st.pop_back();",
+   "        }",
+   "    }",
+   "};"
+  ],
+  "description": "[01_structures] DSU con rollback (sin compresion de caminos), util en divide&conquer offline | O(log n) por operacion"
+ },
+ "fenwick": {
+  "prefix": [
+   "fenwick"
+  ],
+  "body": [
+   "template <class T> struct Fenwick {",
+   "    int n; vector<T> t;",
+   "    Fenwick(int n = 0) : n(n), t(n + 1, 0) {}",
+   "    void add(int i, T v) { for (i++; i <= n; i += i & -i) t[i] += v; }   // 0-indexed",
+   "    T query(int i) { T r = 0; for (i++; i > 0; i -= i & -i) r += t[i]; return r; } // suma [0, i]",
+   "    T query(int l, int r) { return query(r) - (l ? query(l - 1) : T(0)); }       // suma [l, r]",
+   "    int lower_bound(T v) { // menor idx con prefijo >= v (valores >= 0); n si no existe",
+   "        int pos = 0;",
+   "        for (int pw = 1 << __lg(max(n, 1)); pw; pw >>= 1)",
+   "            if (pos + pw <= n && t[pos + pw] < v) { pos += pw; v -= t[pos]; }",
+   "        return pos;",
+   "    }",
+   "};"
+  ],
+  "description": "[01_structures] Fenwick tree (BIT) punto-update, suma de prefijo, busqueda binaria sobre prefijos | O(log n)"
+ },
+ "fenwick_2d": {
+  "prefix": [
+   "fenwick_2d"
+  ],
+  "body": [
+   "template <class T> struct Fenwick2D {",
+   "    int n, m; vector<vector<T>> t;",
+   "    Fenwick2D(int n = 0, int m = 0) : n(n), m(m), t(n + 1, vector<T>(m + 1, 0)) {}",
+   "    void add(int x, int y, T v) { for (int i = x + 1; i <= n; i += i & -i) for (int j = y + 1; j <= m; j += j & -j) t[i][j] += v; }",
+   "    T query(int x, int y) { T r = 0; for (int i = x + 1; i > 0; i -= i & -i) for (int j = y + 1; j > 0; j -= j & -j) r += t[i][j]; return r; } // [0..x]x[0..y]",
+   "    T query(int x1, int y1, int x2, int y2) { return query(x2, y2) - query(x1 - 1, y2) - query(x2, y1 - 1) + query(x1 - 1, y1 - 1); }",
+   "};"
+  ],
+  "description": "[01_structures] Fenwick 2D: update puntual, suma de rectangulo | O(log n * log m)"
+ },
+ "fenwick_range": {
+  "prefix": [
+   "fenwick_range"
+  ],
+  "body": [
+   "template <class T> struct FenwickRange {",
+   "    int n; vector<T> a, b;",
+   "    FenwickRange(int n = 0) : n(n), a(n + 2, 0), b(n + 2, 0) {}",
+   "    void upd(vector<T>& t, int i, T v) { for (i++; i <= n; i += i & -i) t[i] += v; }",
+   "    T qry(vector<T>& t, int i) { T r = 0; for (i++; i > 0; i -= i & -i) r += t[i]; return r; }",
+   "    void add(int l, int r, T v) { // suma v a [l, r]",
+   "        upd(a, l, v); upd(a, r + 1, -v);",
+   "        upd(b, l, v * l); upd(b, r + 1, -v * (r + 1));",
+   "    }",
+   "    T prefix(int i) { return (T)(i + 1) * qry(a, i) - qry(b, i); } // suma [0, i]",
+   "    T query(int l, int r) { return prefix(r) - (l ? prefix(l - 1) : T(0)); }",
+   "};"
+  ],
+  "description": "[01_structures] Fenwick con update de rango y query de rango (suma) | O(log n)"
+ },
+ "hash_custom": {
+  "prefix": [
+   "hash_custom"
+  ],
+  "body": [
+   "#include <ext/pb_ds/assoc_container.hpp>",
+   "struct custom_hash {",
+   "    static uint64_t splitmix64(uint64_t x) {",
+   "        x += 0x9e3779b97f4a7c15;",
+   "        x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9;",
+   "        x = (x ^ (x >> 27)) * 0x94d049bb133111eb;",
+   "        return x ^ (x >> 31);",
+   "    }",
+   "    size_t operator()(uint64_t x) const {",
+   "        static const uint64_t FIXED_RANDOM = chrono::steady_clock::now().time_since_epoch().count();",
+   "        return splitmix64(x + FIXED_RANDOM);",
+   "    }",
+   "};",
+   "// unordered_map<ll, int, custom_hash> mp;   __gnu_pbds::gp_hash_table<ll, int, custom_hash> gp;"
+  ],
+  "description": "[01_structures] Hash anti-hack para unordered_map/unordered_set y gp_hash_table | O(1) esperado"
+ },
+ "interval_set": {
+  "prefix": [
+   "interval_set"
+  ],
+  "body": [
+   "set<pii>::iterator add_interval(set<pii>& is, int L, int R) {",
+   "    if (L == R) return is.end();",
+   "    auto it = is.lower_bound({L, R}), before = it;",
+   "    while (it != is.end() && it->first <= R) {",
+   "        R = max(R, it->second);",
+   "        before = it = is.erase(it);",
+   "    }",
+   "    if (it != is.begin() && (--it)->second >= L) {",
+   "        L = min(L, it->first);",
+   "        R = max(R, it->second);",
+   "        is.erase(it);",
+   "    }",
+   "    return is.insert(before, {L, R});",
+   "}",
+   "void remove_interval(set<pii>& is, int L, int R) {",
+   "    if (L == R) return;",
+   "    auto it = add_interval(is, L, R);",
+   "    int r2 = it->second;",
+   "    if (it->first == L) is.erase(it);",
+   "    else (int&)it->second = L;",
+   "    if (R != r2) is.emplace(R, r2);",
+   "}"
+  ],
+  "description": "[01_structures] Conjunto de intervalos disjuntos [L,R): agregar y quitar intervalos (KACTL) | O(log n) amortizado"
+ },
+ "li_chao": {
+  "prefix": [
+   "li_chao"
+  ],
+  "body": [
+   "struct LiChao {",
+   "    static constexpr ll BIG = (ll)2e18;",
+   "    struct Line { ll m = 0, b = BIG; ll eval(ll x) const { return m * x + b; } };",
+   "    struct Node { Line ln; int l = -1, r = -1; };",
+   "    vector<Node> t; ll lo, hi;",
+   "    LiChao(ll lo, ll hi) : lo(lo), hi(hi) { t.emplace_back(); }",
+   "    void add(Line nw, int x, ll l, ll r) {",
+   "        ll m = (l + r) >> 1;",
+   "        bool lef = nw.eval(l) < t[x].ln.eval(l), mid = nw.eval(m) < t[x].ln.eval(m);",
+   "        if (mid) swap(t[x].ln, nw);",
+   "        if (l == r) return;",
+   "        if (lef != mid) {",
+   "            if (t[x].l < 0) { t[x].l = t.size(); t.emplace_back(); }",
+   "            add(nw, t[x].l, l, m);",
+   "        } else {",
+   "            if (t[x].r < 0) { t[x].r = t.size(); t.emplace_back(); }",
+   "            add(nw, t[x].r, m + 1, r);",
+   "        }",
+   "    }",
+   "    void insert_line(ll m, ll b) { add(Line{m, b}, 0, lo, hi); }",
+   "    ll query(ll xq) {",
+   "        int x = 0; ll l = lo, r = hi, res = LLONG_MAX;",
+   "        while (x >= 0) {",
+   "            res = min(res, t[x].ln.eval(xq));",
+   "            if (l == r) break;",
+   "            ll m = (l + r) >> 1;",
+   "            if (xq <= m) { x = t[x].l; r = m; } else { x = t[x].r; l = m + 1; }",
+   "        }",
+   "        return res;",
+   "    }",
+   "};"
+  ],
+  "description": "[01_structures] Li Chao tree dinamico: minimo de funciones lineales en un punto x (rango [lo, hi]) | O(log C) por insercion/query"
+ },
+ "line_container": {
+  "prefix": [
+   "line_container"
+  ],
+  "body": [
+   "struct Line {",
+   "    mutable ll k, m, p;",
+   "    bool operator<(const Line& o) const { return k < o.k; }",
+   "    bool operator<(ll x) const { return p < x; }",
+   "};",
+   "struct LineContainer : multiset<Line, less<>> {",
+   "    static const ll inf = LLONG_MAX;",
+   "    ll div(ll a, ll b) { return a / b - ((a ^ b) < 0 && a % b); }",
+   "    bool isect(iterator x, iterator y) {",
+   "        if (y == end()) return x->p = inf, 0;",
+   "        if (x->k == y->k) x->p = x->m > y->m ? inf : -inf;",
+   "        else x->p = div(y->m - x->m, x->k - y->k);",
+   "        return x->p >= y->p;",
+   "    }",
+   "    void add(ll k, ll m) {",
+   "        auto z = insert({k, m, 0}), y = z++, x = y;",
+   "        while (isect(y, z)) z = erase(z);",
+   "        if (x != begin() && isect(--x, y)) isect(x, y = erase(y));",
+   "        while ((y = x) != begin() && (--x)->p >= y->p) isect(x, erase(y));",
+   "    }",
+   "    ll query(ll x) {",
+   "        assert(!empty());",
+   "        auto l = *lower_bound(x);",
+   "        return l.k * x + l.m;",
+   "    }",
+   "};"
+  ],
+  "description": "[01_structures] LineContainer (KACTL): maximo de rectas k*x+m, query en cualquier orden (para minimo negar k y m) | O(log n) amortizado"
+ },
+ "merge_sort_tree": {
+  "prefix": [
+   "merge_sort_tree"
+  ],
+  "body": [
+   "struct MergeSortTree {",
+   "    int n; vector<vector<int>> t;",
+   "    MergeSortTree(const vector<int>& a = {}) : n(a.size()), t(2 * a.size()) {",
+   "        for (int i = 0; i < n; i++) t[n + i] = {a[i]};",
+   "        for (int i = n - 1; i > 0; i--) {",
+   "            t[i].resize(t[2 * i].size() + t[2 * i + 1].size());",
+   "            merge(all(t[2 * i]), all(t[2 * i + 1]), t[i].begin());",
+   "        }",
+   "    }",
+   "    int count_less(int l, int r, int k) { // # de elementos < k en [l, r)",
+   "        int res = 0;",
+   "        for (l += n, r += n; l < r; l >>= 1, r >>= 1) {",
+   "            if (l & 1) { res += lower_bound(all(t[l]), k) - t[l].begin(); l++; }",
+   "            if (r & 1) { --r; res += lower_bound(all(t[r]), k) - t[r].begin(); }",
+   "        }",
+   "        return res;",
+   "    }",
+   "};"
+  ],
+  "description": "[01_structures] Merge sort tree: cuantos elementos < k (o <= k) en el rango [l, r) | O(n log n) build, O(log^2 n) query"
+ },
+ "mo": {
+  "prefix": [
+   "mo"
+  ],
+  "body": [
+   "struct MoQ { int l, r, id; }; // [l, r] inclusivo",
+   "ll cur_ans = 0;",
+   "void mo_add(int i) { /* agregar a[i] y actualizar cur_ans */ }",
+   "void mo_del(int i) { /* quitar a[i] y actualizar cur_ans */ }",
+   "vector<ll> mo(vector<MoQ> qs, int n) {",
+   "    int B = max(1, (int)(n / sqrt((double)max<size_t>(1, qs.size()))));",
+   "    sort(all(qs), [&](const MoQ& a, const MoQ& b) {",
+   "        int x = a.l / B, y = b.l / B;",
+   "        if (x != y) return x < y;",
+   "        return (x & 1) ? a.r > b.r : a.r < b.r;",
+   "    });",
+   "    vector<ll> ans(qs.size());",
+   "    int L = 0, R = -1;",
+   "    for (auto& q : qs) {",
+   "        while (L > q.l) mo_add(--L);",
+   "        while (R < q.r) mo_add(++R);",
+   "        while (L < q.l) mo_del(L++);",
+   "        while (R > q.r) mo_del(R--);",
+   "        ans[q.id] = cur_ans;",
+   "    }",
+   "    return ans;",
+   "}"
+  ],
+  "description": "[01_structures] Algoritmo de Mo (consultas offline de rango) con orden zig-zag | O((n + q) sqrt(n))"
+ },
+ "monotonic": {
+  "prefix": [
+   "monotonic"
+  ],
+  "body": [
+   "vector<int> sliding_min(const vector<int>& a, int k) { // min de cada ventana de tamano k",
+   "    deque<int> d; vector<int> res;",
+   "    for (int i = 0; i < (int)a.size(); i++) {",
+   "        while (!d.empty() && a[d.back()] >= a[i]) d.pop_back();",
+   "        d.push_back(i);",
+   "        if (d.front() <= i - k) d.pop_front();",
+   "        if (i >= k - 1) res.push_back(a[d.front()]);",
+   "    }",
+   "    return res;",
+   "}",
+   "// nxt[i] = primer j > i con a[j] > a[i] (o n); cambiar comparador para menor",
+   "vector<int> next_greater(const vector<int>& a) {",
+   "    int n = a.size(); vector<int> res(n, n), st;",
+   "    for (int i = 0; i < n; i++) {",
+   "        while (!st.empty() && a[st.back()] < a[i]) { res[st.back()] = i; st.pop_back(); }",
+   "        st.push_back(i);",
+   "    }",
+   "    return res;",
+   "}",
+   "// area del mayor rectangulo en histograma",
+   "ll largest_rectangle(const vector<int>& h) {",
+   "    int n = h.size(); ll best = 0; vector<int> st;",
+   "    for (int i = 0; i <= n; i++) {",
+   "        int cur = i == n ? 0 : h[i];",
+   "        while (!st.empty() && h[st.back()] >= cur) {",
+   "            ll height = h[st.back()]; st.pop_back();",
+   "            int left = st.empty() ? -1 : st.back();",
+   "            best = max(best, height * (i - left - 1));",
+   "        }",
+   "        st.push_back(i);",
+   "    }",
+   "    return best;",
+   "}"
+  ],
+  "description": "[01_structures] Ventana deslizante min, next/prev menor-mayor (pila monotona), histograma maximo rectangulo | O(n)"
+ },
+ "ordered_set": {
+  "prefix": [
+   "ordered_set"
+  ],
+  "body": [
+   "#include <ext/pb_ds/assoc_container.hpp>",
+   "#include <ext/pb_ds/tree_policy.hpp>",
+   "using namespace __gnu_pbds;",
+   "template <class T> using ordered_set = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;",
+   "// os.order_of_key(x): # elementos < x      *os.find_by_order(k): k-esimo (0-indexed)",
+   "// multiset: usar ordered_set<pair<T,int>> con id unico por elemento"
+  ],
+  "description": "[01_structures] Ordered set / multiset con pb_ds: order_of_key y find_by_order | O(log n)"
+ },
+ "segtree": {
+  "prefix": [
+   "segtree"
+  ],
+  "body": [
+   "struct SegTree {",
+   "    using T = ll;",
+   "    static T op(T a, T b) { return a + b; }  // CAMBIAR (min, max, gcd, ...)",
+   "    static constexpr T ID = 0;                // CAMBIAR (elemento neutro)",
+   "    int n; vector<T> t;",
+   "    SegTree(int n = 0) : n(n), t(2 * n, ID) {}",
+   "    SegTree(const vector<T>& a) : n(a.size()), t(2 * a.size(), ID) {",
+   "        copy(all(a), t.begin() + n);",
+   "        for (int i = n - 1; i > 0; i--) t[i] = op(t[2 * i], t[2 * i + 1]);",
+   "    }",
+   "    void set(int i, T v) { for (t[i += n] = v; i >>= 1;) t[i] = op(t[2 * i], t[2 * i + 1]); }",
+   "    T get(int i) { return t[i + n]; }",
+   "    T query(int l, int r) { // [l, r)",
+   "        T rl = ID, rr = ID;",
+   "        for (l += n, r += n; l < r; l >>= 1, r >>= 1) {",
+   "            if (l & 1) rl = op(rl, t[l++]);",
+   "            if (r & 1) rr = op(t[--r], rr);",
+   "        }",
+   "        return op(rl, rr);",
+   "    }",
+   "};"
+  ],
+  "description": "[01_structures] Segment tree iterativo (bottom-up), operacion asociativa configurable | O(log n) por query/update, O(n) build"
+ },
+ "segtree_lazy": {
+  "prefix": [
+   "segtree_lazy"
+  ],
+  "body": [
+   "struct LazySeg {",
+   "    int n; vector<ll> sum, lz;",
+   "    LazySeg(int n = 0) : n(n), sum(4 * n + 4, 0), lz(4 * n + 4, 0) {}",
+   "    void build(const vector<ll>& a, int x, int l, int r) {",
+   "        if (r - l == 1) { sum[x] = a[l]; return; }",
+   "        int m = (l + r) / 2;",
+   "        build(a, 2 * x, l, m); build(a, 2 * x + 1, m, r);",
+   "        sum[x] = sum[2 * x] + sum[2 * x + 1];",
+   "    }",
+   "    void build(const vector<ll>& a) { build(a, 1, 0, n); }",
+   "    void apply(int x, int l, int r, ll v) { sum[x] += v * (r - l); lz[x] += v; }",
+   "    void push(int x, int l, int r) {",
+   "        if (lz[x]) { int m = (l + r) / 2; apply(2 * x, l, m, lz[x]); apply(2 * x + 1, m, r, lz[x]); lz[x] = 0; }",
+   "    }",
+   "    void update(int x, int l, int r, int ql, int qr, ll v) {",
+   "        if (qr <= l || r <= ql) return;",
+   "        if (ql <= l && r <= qr) { apply(x, l, r, v); return; }",
+   "        push(x, l, r);",
+   "        int m = (l + r) / 2;",
+   "        update(2 * x, l, m, ql, qr, v); update(2 * x + 1, m, r, ql, qr, v);",
+   "        sum[x] = sum[2 * x] + sum[2 * x + 1];",
+   "    }",
+   "    ll query(int x, int l, int r, int ql, int qr) {",
+   "        if (qr <= l || r <= ql) return 0;",
+   "        if (ql <= l && r <= qr) return sum[x];",
+   "        push(x, l, r);",
+   "        int m = (l + r) / 2;",
+   "        return query(2 * x, l, m, ql, qr) + query(2 * x + 1, m, r, ql, qr);",
+   "    }",
+   "    void update(int l, int r, ll v) { update(1, 0, n, l, r, v); } // [l, r)",
+   "    ll query(int l, int r) { return query(1, 0, n, l, r); }       // [l, r)",
+   "};"
+  ],
+  "description": "[01_structures] Segment tree recursivo con lazy: suma en rango + update de rango (add) | O(log n) por operacion"
+ },
+ "segtree_lazy_affine": {
+  "prefix": [
+   "segtree_lazy_affine"
+  ],
+  "body": [
+   "struct AffineSeg {",
+   "    int n; vll sum, ma, ad;",
+   "    AffineSeg(int n = 0) : n(n), sum(4 * n + 4, 0), ma(4 * n + 4, 1), ad(4 * n + 4, 0) {}",
+   "    void build(const vll& a, int x, int l, int r) {",
+   "        if (r - l == 1) { sum[x] = a[l] % MOD; return; }",
+   "        int m = (l + r) / 2;",
+   "        build(a, 2 * x, l, m); build(a, 2 * x + 1, m, r);",
+   "        sum[x] = (sum[2 * x] + sum[2 * x + 1]) % MOD;",
+   "    }",
+   "    void build(const vll& a) { build(a, 1, 0, n); }",
+   "    void apply(int x, int l, int r, ll m, ll b) {",
+   "        sum[x] = (sum[x] * m + b * (r - l)) % MOD;",
+   "        ma[x] = ma[x] * m % MOD;",
+   "        ad[x] = (ad[x] * m + b) % MOD;",
+   "    }",
+   "    void push(int x, int l, int r) {",
+   "        if (ma[x] != 1 || ad[x] != 0) {",
+   "            int m = (l + r) / 2;",
+   "            apply(2 * x, l, m, ma[x], ad[x]); apply(2 * x + 1, m, r, ma[x], ad[x]);",
+   "            ma[x] = 1; ad[x] = 0;",
+   "        }",
+   "    }",
+   "    void update(int x, int l, int r, int ql, int qr, ll m, ll b) {",
+   "        if (qr <= l || r <= ql) return;",
+   "        if (ql <= l && r <= qr) { apply(x, l, r, m, b); return; }",
+   "        push(x, l, r);",
+   "        int mid = (l + r) / 2;",
+   "        update(2 * x, l, mid, ql, qr, m, b); update(2 * x + 1, mid, r, ql, qr, m, b);",
+   "        sum[x] = (sum[2 * x] + sum[2 * x + 1]) % MOD;",
+   "    }",
+   "    ll query(int x, int l, int r, int ql, int qr) {",
+   "        if (qr <= l || r <= ql) return 0;",
+   "        if (ql <= l && r <= qr) return sum[x];",
+   "        push(x, l, r);",
+   "        int m = (l + r) / 2;",
+   "        return (query(2 * x, l, m, ql, qr) + query(2 * x + 1, m, r, ql, qr)) % MOD;",
+   "    }",
+   "    void update(int l, int r, ll m, ll b) { update(1, 0, n, l, r, m, b); } // [l, r): x -> m*x+b",
+   "    ll query(int l, int r) { return query(1, 0, n, l, r); }",
+   "};"
+  ],
+  "description": "[01_structures] Seg tree lazy: aplicar x -> m*x+b a un rango, suma en rango (mod MOD) | O(log n) por operacion"
+ },
+ "segtree_persistent": {
+  "prefix": [
+   "segtree_persistent"
+  ],
+  "body": [
+   "struct PersistentSeg {",
+   "    struct Node { int l = 0, r = 0; ll v = 0; };",
+   "    vector<Node> t; int n;",
+   "    // nodo 0 = nulo (todo ceros). Raiz inicial = 0.",
+   "    PersistentSeg(int n = 0, int reserve = 0) : n(n) { t.reserve(reserve + 1); t.emplace_back(); }",
+   "    int upd(int prev, int l, int r, int pos, ll val) {",
+   "        int cur = t.size(); t.push_back(t[prev]);",
+   "        if (r - l == 1) { t[cur].v += val; return cur; }",
+   "        int m = (l + r) / 2;",
+   "        if (pos < m) { int c = upd(t[prev].l, l, m, pos, val); t[cur].l = c; }",
+   "        else { int c = upd(t[prev].r, m, r, pos, val); t[cur].r = c; }",
+   "        t[cur].v = t[t[cur].l].v + t[t[cur].r].v;",
+   "        return cur;",
+   "    }",
+   "    int update(int root, int pos, ll val) { return upd(root, 0, n, pos, val); } // nueva raiz",
+   "    ll qry(int x, int l, int r, int ql, int qr) {",
+   "        if (!x || qr <= l || r <= ql) return 0;",
+   "        if (ql <= l && r <= qr) return t[x].v;",
+   "        int m = (l + r) / 2;",
+   "        return qry(t[x].l, l, m, ql, qr) + qry(t[x].r, m, r, ql, qr);",
+   "    }",
+   "    ll query(int root, int l, int r) { return qry(root, 0, n, l, r); } // [l, r)",
+   "    // k-esimo menor (k desde 1) en multiconjunto = version rv menos version ru (conteos)",
+   "    int kth(int ru, int rv, int k) {",
+   "        int l = 0, r = n;",
+   "        while (r - l > 1) {",
+   "            int m = (l + r) / 2; ll c = t[t[rv].l].v - t[t[ru].l].v;",
+   "            if (k <= c) { ru = t[ru].l; rv = t[rv].l; r = m; }",
+   "            else { k -= c; ru = t[ru].r; rv = t[rv].r; l = m; }",
+   "        }",
+   "        return l;",
+   "    }",
+   "};"
+  ],
+  "description": "[01_structures] Segment tree persistente (versiones) con suma y k-esimo entre dos versiones | O(log n) por update/query, O(n log n) memoria"
+ },
+ "sparse_table": {
+  "prefix": [
+   "sparse_table"
+  ],
+  "body": [
+   "template <class T> struct SparseTable {",
+   "    vector<vector<T>> t;",
+   "    SparseTable(const vector<T>& a = {}) {",
+   "        int n = a.size(); if (!n) return;",
+   "        int lg = __lg(n) + 1;",
+   "        t.assign(lg, vector<T>(n)); t[0] = a;",
+   "        for (int k = 1; k < lg; k++)",
+   "            for (int i = 0; i + (1 << k) <= n; i++)",
+   "                t[k][i] = min(t[k - 1][i], t[k - 1][i + (1 << (k - 1))]);",
+   "    }",
+   "    T query(int l, int r) { int k = __lg(r - l + 1); return min(t[k][l], t[k][r - (1 << k) + 1]); } // [l, r]",
+   "};"
+  ],
+  "description": "[01_structures] Sparse table para RMQ (min) con query O(1); cambiar min por max/gcd | O(n log n) build, O(1) query"
+ },
+ "sqrt_decomposition": {
+  "prefix": [
+   "sqrt_decomposition"
+  ],
+  "body": [
+   "struct SqrtDecomp {",
+   "    int n, B, nb; vector<ll> a, blk_sum, blk_add;",
+   "    SqrtDecomp(const vector<ll>& v) : n(v.size()), a(v) {",
+   "        B = max(1, (int)sqrt((double)n)); nb = (n + B - 1) / B;",
+   "        blk_sum.assign(nb, 0); blk_add.assign(nb, 0);",
+   "        for (int i = 0; i < n; i++) blk_sum[i / B] += a[i];",
+   "    }",
+   "    void add(int l, int r, ll v) { // [l, r)",
+   "        for (int i = l; i < r;) {",
+   "            if (i % B == 0 && i + B <= r) { blk_add[i / B] += v; i += B; }",
+   "            else { a[i] += v; blk_sum[i / B] += v; i++; }",
+   "        }",
+   "    }",
+   "    ll query(int l, int r) { // [l, r)",
+   "        ll res = 0;",
+   "        for (int i = l; i < r;) {",
+   "            if (i % B == 0 && i + B <= r) { res += blk_sum[i / B] + blk_add[i / B] * B; i += B; }",
+   "            else { res += a[i] + blk_add[i / B]; i++; }",
+   "        }",
+   "        return res;",
+   "    }",
+   "};"
+  ],
+  "description": "[01_structures] Descomposicion en bloques: add en rango y suma en rango (plantilla para problemas raros) | O(sqrt n) por operacion"
+ },
+ "treap": {
+  "prefix": [
+   "treap"
+  ],
+  "body": [
+   "struct Treap {",
+   "    struct Node { int l = 0, r = 0, sz = 1; unsigned pri = 0; ll val = 0, sum = 0; bool rev = false; };",
+   "    vector<Node> t; int root = 0;",
+   "    Treap() { t.emplace_back(); t[0].sz = 0; }",
+   "    int new_node(ll v) { Node nd; nd.pri = rng(); nd.val = nd.sum = v; t.push_back(nd); return t.size() - 1; }",
+   "    void apply_rev(int x) { if (x) { swap(t[x].l, t[x].r); t[x].rev ^= 1; } }",
+   "    void push(int x) { if (t[x].rev) { apply_rev(t[x].l); apply_rev(t[x].r); t[x].rev = false; } }",
+   "    void pull(int x) {",
+   "        t[x].sz = 1 + t[t[x].l].sz + t[t[x].r].sz;",
+   "        t[x].sum = t[x].val + t[t[x].l].sum + t[t[x].r].sum;",
+   "    }",
+   "    void split(int x, int k, int& a, int& b) { // a = primeros k elementos",
+   "        if (!x) { a = b = 0; return; }",
+   "        push(x);",
+   "        if (t[t[x].l].sz >= k) { b = x; split(t[x].l, k, a, t[x].l); pull(x); }",
+   "        else { a = x; split(t[x].r, k - t[t[x].l].sz - 1, t[x].r, b); pull(x); }",
+   "    }",
+   "    int merge(int a, int b) {",
+   "        if (!a || !b) return a ? a : b;",
+   "        if (t[a].pri > t[b].pri) { push(a); int c = merge(t[a].r, b); t[a].r = c; pull(a); return a; }",
+   "        push(b); int c = merge(a, t[b].l); t[b].l = c; pull(b); return b;",
+   "    }",
+   "    void insert(int pos, ll v) { int a, b; split(root, pos, a, b); root = merge(merge(a, new_node(v)), b); }",
+   "    void erase(int pos) { int a, b, c; split(root, pos, a, b); split(b, 1, b, c); root = merge(a, c); }",
+   "    ll range_sum(int l, int r) { int a, b, c; split(root, l, a, b); split(b, r - l, b, c); ll s = t[b].sum; root = merge(a, merge(b, c)); return s; } // [l, r)",
+   "    void reverse_range(int l, int r) { int a, b, c; split(root, l, a, b); split(b, r - l, b, c); apply_rev(b); root = merge(a, merge(b, c)); } // [l, r)",
+   "    int size() { return t[root].sz; }",
+   "};"
+  ],
+  "description": "[01_structures] Treap implicito (secuencia): insertar, borrar, reverse de rango, suma de rango | O(log n) esperado por operacion"
+ },
+ "xor_trie": {
+  "prefix": [
+   "xor_trie"
+  ],
+  "body": [
+   "struct XorTrie {",
+   "    static const int B = 30;",
+   "    vector<array<int, 2>> ch; vector<int> cnt;",
+   "    XorTrie() { ch.push_back({0, 0}); cnt.push_back(0); }",
+   "    void insert(int v) {",
+   "        int x = 0;",
+   "        for (int i = B - 1; i >= 0; i--) {",
+   "            int b = v >> i & 1, c = ch[x][b];",
+   "            if (!c) { c = ch.size(); ch.push_back({0, 0}); cnt.push_back(0); ch[x][b] = c; }",
+   "            x = c; cnt[x]++;",
+   "        }",
+   "    }",
+   "    void erase(int v) { // v debe existir",
+   "        int x = 0;",
+   "        for (int i = B - 1; i >= 0; i--) { x = ch[x][v >> i & 1]; cnt[x]--; }",
+   "    }",
+   "    int max_xor(int v) { // el conjunto no debe estar vacio",
+   "        int x = 0, res = 0;",
+   "        for (int i = B - 1; i >= 0; i--) {",
+   "            int b = (v >> i & 1) ^ 1, c = ch[x][b];",
+   "            if (c && cnt[c] > 0) { res |= 1 << i; x = c; } else x = ch[x][b ^ 1];",
+   "        }",
+   "        return res;",
+   "    }",
+   "};"
+  ],
+  "description": "[01_structures] Trie binario: insertar/borrar numeros, maximo XOR con un valor, k-esimo | O(B) por operacion (B = bits)"
+ },
+ "bellman_ford": {
+  "prefix": [
+   "bellman_ford"
+  ],
+  "body": [
+   "struct BFEdge { int u, v; ll w; };",
+   "// d[v] == INF: inalcanzable; d[v] == -INF: afectado por ciclo negativo",
+   "vector<ll> bellman_ford(int n, const vector<BFEdge>& e, int s) {",
+   "    vector<ll> d(n, INF); d[s] = 0;",
+   "    for (int i = 0; i < n - 1; i++) {",
+   "        bool ch = false;",
+   "        for (auto& [u, v, w] : e) if (d[u] < INF && d[u] + w < d[v]) { d[v] = d[u] + w; ch = true; }",
+   "        if (!ch) break;",
+   "    }",
+   "    for (int i = 0; i < n; i++)",
+   "        for (auto& [u, v, w] : e) if (d[u] < INF && d[u] + w < d[v]) d[v] = -INF;",
+   "    return d;",
+   "}"
+  ],
+  "description": "[02_graphs] Bellman-Ford: caminos minimos con pesos negativos; marca nodos afectados por ciclo negativo | O(V * E)"
+ },
+ "bfs_01": {
+  "prefix": [
+   "bfs_01"
+  ],
+  "body": [
+   "vector<int> bfs01(const vector<vector<pair<int, int>>>& g, int s) {",
+   "    int n = g.size(); vector<int> d(n, INT_MAX); deque<int> q;",
+   "    d[s] = 0; q.push_back(s);",
+   "    while (!q.empty()) {",
+   "        int u = q.front(); q.pop_front();",
+   "        for (auto [v, w] : g[u])",
+   "            if (d[u] + w < d[v]) {",
+   "                d[v] = d[u] + w;",
+   "                if (w == 0) q.push_front(v); else q.push_back(v);",
+   "            }",
+   "    }",
+   "    return d;",
+   "}"
+  ],
+  "description": "[02_graphs] BFS 0-1 (pesos 0 o 1) con deque; g[u] = {(v, w)} | O(V + E)"
+ },
+ "bipartite": {
+  "prefix": [
+   "bipartite"
+  ],
+  "body": [
+   "bool bipartite(const vector<vi>& g, vi& color) {",
+   "    int n = g.size(); color.assign(n, -1);",
+   "    for (int s = 0; s < n; s++) {",
+   "        if (color[s] != -1) continue;",
+   "        color[s] = 0; queue<int> q; q.push(s);",
+   "        while (!q.empty()) {",
+   "            int u = q.front(); q.pop();",
+   "            for (int v : g[u]) {",
+   "                if (color[v] == -1) { color[v] = color[u] ^ 1; q.push(v); }",
+   "                else if (color[v] == color[u]) return false;",
+   "            }",
+   "        }",
+   "    }",
+   "    return true;",
+   "}"
+  ],
+  "description": "[02_graphs] Chequeo de grafo bipartito (2-coloreo con BFS); color[] = 0/1, devuelve false si hay ciclo impar | O(V + E)"
+ },
+ "block_cut_tree": {
+  "prefix": [
+   "block_cut_tree"
+  ],
+  "body": [
+   "struct BlockCut {",
+   "    int n, timer = 0; vector<vi> g, tree; vi tin, low, st;",
+   "    BlockCut(int n = 0) : n(n), g(n), tree(n), tin(n, -1), low(n, 0) {}",
+   "    void add_edge(int u, int v) { g[u].push_back(v); g[v].push_back(u); }",
+   "    void dfs(int u, int p) {",
+   "        tin[u] = low[u] = timer++; st.push_back(u);",
+   "        for (int v : g[u]) {",
+   "            if (v == p) continue;",
+   "            if (tin[v] != -1) low[u] = min(low[u], tin[v]);",
+   "            else {",
+   "                dfs(v, u); low[u] = min(low[u], low[v]);",
+   "                if (low[v] >= tin[u]) {",
+   "                    int id = tree.size(); tree.emplace_back();",
+   "                    while (true) {",
+   "                        int w = st.back(); st.pop_back();",
+   "                        tree[id].push_back(w); tree[w].push_back(id);",
+   "                        if (w == v) break;",
+   "                    }",
+   "                    tree[id].push_back(u); tree[u].push_back(id);",
+   "                }",
+   "            }",
+   "        }",
+   "    }",
+   "    void run() { for (int i = 0; i < n; i++) if (tin[i] == -1) dfs(i, -1); } // tree = bosque de bloques y puntos",
+   "};"
+  ],
+  "description": "[02_graphs] Block-cut tree (componentes biconexas por vertices). Nodos >= n son bloques | O(V + E)"
+ },
+ "bridges_cut": {
+  "prefix": [
+   "bridges_cut"
+  ],
+  "body": [
+   "struct Bridges {",
+   "    int n, m = 0, timer = 0, n2cc = 0;",
+   "    vector<vector<pii>> g; // (vecino, id de arista)",
+   "    vi tin, low, comp; vector<bool> is_bridge, is_cut;",
+   "    Bridges(int n = 0) : n(n), g(n), tin(n, -1), low(n, 0), comp(n, -1), is_cut(n, false) {}",
+   "    void add_edge(int u, int v) { g[u].push_back({v, m}); g[v].push_back({u, m}); m++; is_bridge.push_back(false); }",
+   "    void dfs(int u, int pe) {",
+   "        tin[u] = low[u] = timer++; int ch = 0;",
+   "        for (auto [v, id] : g[u]) {",
+   "            if (id == pe) continue;",
+   "            if (tin[v] != -1) low[u] = min(low[u], tin[v]);",
+   "            else {",
+   "                dfs(v, id); low[u] = min(low[u], low[v]); ch++;",
+   "                if (low[v] > tin[u]) is_bridge[id] = true;",
+   "                if (low[v] >= tin[u] && pe != -1) is_cut[u] = true;",
+   "            }",
+   "        }",
+   "        if (pe == -1 && ch > 1) is_cut[u] = true;",
+   "    }",
+   "    void run() {",
+   "        for (int i = 0; i < n; i++) if (tin[i] == -1) dfs(i, -1);",
+   "        for (int i = 0; i < n; i++) if (comp[i] == -1) { // componentes 2-aristo-conexas",
+   "            vi st = {i}; comp[i] = n2cc;",
+   "            while (!st.empty()) {",
+   "                int u = st.back(); st.pop_back();",
+   "                for (auto [v, id] : g[u]) if (!is_bridge[id] && comp[v] == -1) { comp[v] = n2cc; st.push_back(v); }",
+   "            }",
+   "            n2cc++;",
+   "        }",
+   "    }",
+   "};"
+  ],
+  "description": "[02_graphs] Puentes, puntos de articulacion y componentes 2-aristo-conexas (maneja multiaristas) | O(V + E)"
+ },
+ "centroid_decomp": {
+  "prefix": [
+   "centroid_decomp"
+  ],
+  "body": [
+   "struct Centroid {",
+   "    int n; vector<vi> g; vi par, lvl, sz_, pp, ord; vector<bool> removed;",
+   "    Centroid(const vector<vi>& g) : n(g.size()), g(g), par(n, -1), lvl(n, 0), sz_(n, 0), pp(n, -1), removed(n, false) { decompose(0, -1, 0); }",
+   "    int centroid(int s) {",
+   "        ord.assign(1, s); pp[s] = -1;",
+   "        for (int i = 0; i < (int)ord.size(); i++) {",
+   "            int u = ord[i]; sz_[u] = 1;",
+   "            for (int v : g[u]) if (v != pp[u] && !removed[v]) { pp[v] = u; ord.push_back(v); }",
+   "        }",
+   "        for (int i = (int)ord.size() - 1; i > 0; i--) sz_[pp[ord[i]]] += sz_[ord[i]];",
+   "        int tot = ord.size(), u = s;",
+   "        while (true) {",
+   "            bool moved = false;",
+   "            for (int v : g[u]) if (v != pp[u] && !removed[v] && sz_[v] * 2 > tot) { u = v; moved = true; break; }",
+   "            if (!moved) return u;",
+   "        }",
+   "    }",
+   "    void decompose(int s, int parent, int level) {",
+   "        int c = centroid(s); par[c] = parent; lvl[c] = level; removed[c] = true;",
+   "        // AQUI: procesar el componente de c (BFS desde c sobre nodos no removidos)",
+   "        for (int v : g[c]) if (!removed[v]) decompose(v, c, level + 1);",
+   "    }",
+   "};"
+  ],
+  "description": "[02_graphs] Centroid decomposition (iterativo para hallar centroides); par[] = padre en el arbol de centroides | O(n log n)"
+ },
+ "dijkstra": {
+  "prefix": [
+   "dijkstra"
+  ],
+  "body": [
+   "vector<ll> dijkstra(const vector<vector<pair<int, ll>>>& g, int s, vector<int>* par = nullptr) {",
+   "    int n = g.size(); vector<ll> d(n, INF);",
+   "    priority_queue<pair<ll, int>, vector<pair<ll, int>>, greater<>> pq;",
+   "    d[s] = 0; pq.push({0, s});",
+   "    if (par) par->assign(n, -1);",
+   "    while (!pq.empty()) {",
+   "        auto [du, u] = pq.top(); pq.pop();",
+   "        if (du > d[u]) continue;",
+   "        for (auto [v, w] : g[u])",
+   "            if (du + w < d[v]) { d[v] = du + w; if (par) (*par)[v] = u; pq.push({d[v], v}); }",
+   "    }",
+   "    return d;",
+   "}",
+   "vector<int> get_path(const vector<int>& par, int t) { // camino s -> t (vacio si inalcanzable y t != s)",
+   "    vector<int> p;",
+   "    for (int v = t; v != -1; v = par[v]) p.push_back(v);",
+   "    reverse(all(p));",
+   "    return p;",
+   "}"
+  ],
+  "description": "[02_graphs] Dijkstra con heap, reconstruccion de camino; g[u] = {(v, w)} | O((V + E) log V)"
+ },
+ "dsu_on_tree": {
+  "prefix": [
+   "dsu_on_tree"
+  ],
+  "body": [
+   "struct Sack {",
+   "    int n, T = 0; vector<vi> g; vi sub, tin, tout, ver, col; ll cur = 0; vector<ll> ans; vi cnt;",
+   "    Sack(const vector<vi>& g, const vi& col) : n(g.size()), g(g), sub(n), tin(n), tout(n), ver(n), col(col), ans(n), cnt(n + 1, 0) {}",
+   "    void add(int u) { /* agregar col[u] y actualizar cur */ cnt[col[u]]++; }",
+   "    void rem(int u) { /* quitar col[u] y actualizar cur */ cnt[col[u]]--; }",
+   "    void dfs_sz(int u, int p) {",
+   "        tin[u] = T; ver[T++] = u; sub[u] = 1;",
+   "        for (int v : g[u]) if (v != p) { dfs_sz(v, u); sub[u] += sub[v]; }",
+   "        tout[u] = T;",
+   "    }",
+   "    void dfs(int u, int p, bool keep) {",
+   "        int big = -1;",
+   "        for (int v : g[u]) if (v != p && (big == -1 || sub[v] > sub[big])) big = v;",
+   "        for (int v : g[u]) if (v != p && v != big) dfs(v, u, false);",
+   "        if (big != -1) dfs(big, u, true);",
+   "        add(u);",
+   "        for (int v : g[u]) if (v != p && v != big) for (int i = tin[v]; i < tout[v]; i++) add(ver[i]);",
+   "        ans[u] = cur; // respuesta del subarbol de u",
+   "        if (!keep) for (int i = tin[u]; i < tout[u]; i++) rem(ver[i]);",
+   "    }",
+   "    void run(int root = 0) { dfs_sz(root, -1); dfs(root, -1, true); }",
+   "};"
+  ],
+  "description": "[02_graphs] Small-to-large / Sack (DSU on tree): responde sobre el multiconjunto del subarbol de cada nodo | O(n log n)"
+ },
+ "euler_path": {
+  "prefix": [
+   "euler_path"
+  ],
+  "body": [
+   "// Devuelve los vertices del recorrido que usa todas las aristas (vacio si no existe)",
+   "vector<int> euler_path(int n, const vector<pii>& edges, bool directed) {",
+   "    int m = edges.size();",
+   "    vector<vector<pii>> g(n); vi in(n, 0), out(n, 0);",
+   "    for (int i = 0; i < m; i++) {",
+   "        auto [u, v] = edges[i];",
+   "        g[u].push_back({v, i}); out[u]++;",
+   "        if (directed) in[v]++; else { g[v].push_back({u, i}); out[v]++; }",
+   "    }",
+   "    int start = -1;",
+   "    if (directed) {",
+   "        int s = 0, t = 0;",
+   "        for (int i = 0; i < n; i++) {",
+   "            if (out[i] - in[i] == 1) { s++; start = i; }",
+   "            else if (in[i] - out[i] == 1) t++;",
+   "            else if (in[i] != out[i]) return {};",
+   "        }",
+   "        if (!((s == 0 && t == 0) || (s == 1 && t == 1))) return {};",
+   "    } else {",
+   "        int odd = 0;",
+   "        for (int i = 0; i < n; i++) if (out[i] % 2) { odd++; start = i; }",
+   "        if (odd != 0 && odd != 2) return {};",
+   "    }",
+   "    if (start == -1) for (int i = 0; i < n; i++) if (out[i] > 0) { start = i; break; }",
+   "    if (start == -1) return n ? vector<int>{0} : vector<int>{};",
+   "    vector<bool> used(m, false); vi ptr(n, 0), res, st = {start};",
+   "    while (!st.empty()) {",
+   "        int u = st.back();",
+   "        while (ptr[u] < (int)g[u].size() && used[g[u][ptr[u]].second]) ptr[u]++;",
+   "        if (ptr[u] == (int)g[u].size()) { res.push_back(u); st.pop_back(); }",
+   "        else { auto [v, id] = g[u][ptr[u]++]; used[id] = true; st.push_back(v); }",
+   "    }",
+   "    if ((int)res.size() != m + 1) return {};",
+   "    reverse(all(res));",
+   "    return res;",
+   "}"
+  ],
+  "description": "[02_graphs] Camino/ciclo euleriano (Hierholzer iterativo), dirigido o no dirigido | O(V + E)"
+ },
+ "find_cycle": {
+  "prefix": [
+   "find_cycle"
+  ],
+  "body": [
+   "vector<int> find_cycle_directed(const vector<vi>& g) {",
+   "    int n = g.size(); vi color(n, 0), par(n, -1), it(n, 0);",
+   "    for (int s = 0; s < n; s++) {",
+   "        if (color[s]) continue;",
+   "        vi st = {s}; color[s] = 1;",
+   "        while (!st.empty()) {",
+   "            int u = st.back();",
+   "            if (it[u] < (int)g[u].size()) {",
+   "                int v = g[u][it[u]++];",
+   "                if (color[v] == 0) { color[v] = 1; par[v] = u; st.push_back(v); }",
+   "                else if (color[v] == 1) { // ciclo v -> ... -> u -> v",
+   "                    vi cyc = {v};",
+   "                    for (int x = u; x != v; x = par[x]) cyc.push_back(x);",
+   "                    reverse(cyc.begin() + 1, cyc.end());",
+   "                    return cyc;",
+   "                }",
+   "            } else { color[u] = 2; st.pop_back(); }",
+   "        }",
+   "    }",
+   "    return {};",
+   "}"
+  ],
+  "description": "[02_graphs] Encontrar un ciclo en grafo dirigido (DFS iterativo con colores); devuelve vertices del ciclo o vacio | O(V + E)"
+ },
+ "floyd_warshall": {
+  "prefix": [
+   "floyd_warshall"
+  ],
+  "body": [
+   "struct Floyd {",
+   "    int n; vector<vll> d; vector<vi> nxt;",
+   "    Floyd(int n) : n(n), d(n, vll(n, INF)), nxt(n, vi(n, -1)) { for (int i = 0; i < n; i++) { d[i][i] = 0; nxt[i][i] = i; } }",
+   "    void add_edge(int u, int v, ll w) { if (w < d[u][v]) { d[u][v] = w; nxt[u][v] = v; } }",
+   "    void run() {",
+   "        for (int k = 0; k < n; k++) for (int i = 0; i < n; i++) if (d[i][k] < INF)",
+   "            for (int j = 0; j < n; j++) if (d[k][j] < INF && d[i][k] + d[k][j] < d[i][j]) {",
+   "                d[i][j] = max(-INF, d[i][k] + d[k][j]); nxt[i][j] = nxt[i][k];",
+   "            }",
+   "    }",
+   "    bool neg_cycle() { for (int i = 0; i < n; i++) if (d[i][i] < 0) return true; return false; }",
+   "    vector<int> path(int u, int v) { // solo valido sin ciclos negativos",
+   "        if (nxt[u][v] == -1) return {};",
+   "        vector<int> p = {u};",
+   "        while (u != v) { u = nxt[u][v]; p.push_back(u); }",
+   "        return p;",
+   "    }",
+   "};"
+  ],
+  "description": "[02_graphs] Floyd-Warshall todos contra todos, deteccion de ciclos negativos y reconstruccion de camino | O(V^3)"
+ },
+ "hld": {
+  "prefix": [
+   "hld"
+  ],
+  "body": [
+   "struct HLD {",
+   "    int n; vector<vi> g; vi par, dep, heavy, head, pos, sub;",
+   "    HLD(int n = 0) : n(n), g(n), par(n, -1), dep(n, 0), heavy(n, -1), head(n, 0), pos(n, 0), sub(n, 1) {}",
+   "    void add_edge(int u, int v) { g[u].push_back(v); g[v].push_back(u); }",
+   "    void build(int root = 0) {",
+   "        vi ord = {root}; par[root] = -1;",
+   "        for (int i = 0; i < (int)ord.size(); i++) {",
+   "            int u = ord[i];",
+   "            for (int v : g[u]) if (v != par[u]) { par[v] = u; dep[v] = dep[u] + 1; ord.push_back(v); }",
+   "        }",
+   "        for (int i = n - 1; i > 0; i--) { int u = ord[i]; sub[par[u]] += sub[u]; }",
+   "        for (int u : ord) {",
+   "            heavy[u] = -1;",
+   "            for (int v : g[u]) if (v != par[u] && (heavy[u] == -1 || sub[v] > sub[heavy[u]])) heavy[u] = v;",
+   "        }",
+   "        int cur = 0; vi st = {root}; head[root] = root;",
+   "        while (!st.empty()) { // preorden con hijo pesado primero => cadenas y subarboles contiguos",
+   "            int u = st.back(); st.pop_back(); pos[u] = cur++;",
+   "            for (int v : g[u]) if (v != par[u] && v != heavy[u]) { head[v] = v; st.push_back(v); }",
+   "            if (heavy[u] != -1) { head[heavy[u]] = head[u]; st.push_back(heavy[u]); }",
+   "        }",
+   "    }",
+   "    int lca(int u, int v) {",
+   "        while (head[u] != head[v]) { if (dep[head[u]] > dep[head[v]]) swap(u, v); v = par[head[v]]; }",
+   "        return dep[u] < dep[v] ? u : v;",
+   "    }",
+   "    // f(l, r): rangos [l, r] de posiciones. Con edge=true los pesos viven en el hijo (aristas)",
+   "    template <class F> void path(int u, int v, F f, bool edge = false) {",
+   "        for (; head[u] != head[v]; v = par[head[v]]) {",
+   "            if (dep[head[u]] > dep[head[v]]) swap(u, v);",
+   "            f(pos[head[v]], pos[v]);",
+   "        }",
+   "        if (dep[u] > dep[v]) swap(u, v);",
+   "        if (pos[u] + edge <= pos[v]) f(pos[u] + edge, pos[v]);",
+   "    }",
+   "    pii subtree(int u) { return {pos[u], pos[u] + sub[u] - 1}; } // rango [l, r]",
+   "};"
+  ],
+  "description": "[02_graphs] Heavy-Light Decomposition: consultas de camino/subarbol sobre un segment tree (pos[] = indice) | O(log^2 n) por consulta de camino"
+ },
+ "kruskal": {
+  "prefix": [
+   "kruskal"
+  ],
+  "body": [
+   "ll kruskal(int n, vector<array<ll, 3>> e, vector<array<ll, 3>>* used = nullptr) { // devuelve -1 si no es conexo",
+   "    sort(all(e)); vi p(n); iota(all(p), 0);",
+   "    function<int(int)> find = [&](int x) { return p[x] == x ? x : p[x] = find(p[x]); };",
+   "    ll total = 0; int cnt = 0;",
+   "    for (auto& ed : e) {",
+   "        int a = find(ed[1]), b = find(ed[2]);",
+   "        if (a == b) continue;",
+   "        p[a] = b; total += ed[0]; cnt++;",
+   "        if (used) used->push_back(ed);",
+   "    }",
+   "    return cnt == n - 1 ? total : -1;",
+   "}"
+  ],
+  "description": "[02_graphs] MST con Kruskal (DSU interno); aristas (w, u, v) | O(E log E)"
+ },
+ "lca_binary_lifting": {
+  "prefix": [
+   "lca_binary_lifting"
+  ],
+  "body": [
+   "struct LCA {",
+   "    int n, LOG; vector<vi> up; vi dep;",
+   "    LCA(const vector<vi>& g, int root = 0) : n(g.size()) {",
+   "        LOG = 1; while ((1 << LOG) < n) LOG++;",
+   "        up.assign(LOG + 1, vi(n, root)); dep.assign(n, 0);",
+   "        vi q = {root}; vector<bool> vis(n, false); vis[root] = true;",
+   "        for (int i = 0; i < (int)q.size(); i++) {",
+   "            int u = q[i];",
+   "            for (int v : g[u]) if (!vis[v]) { vis[v] = true; dep[v] = dep[u] + 1; up[0][v] = u; q.push_back(v); }",
+   "        }",
+   "        for (int k = 1; k <= LOG; k++) for (int v = 0; v < n; v++) up[k][v] = up[k - 1][up[k - 1][v]];",
+   "    }",
+   "    int kth(int v, int k) { for (int i = 0; i <= LOG; i++) if (k >> i & 1) v = up[i][v]; return v; } // k-esimo ancestro",
+   "    int lca(int a, int b) {",
+   "        if (dep[a] < dep[b]) swap(a, b);",
+   "        a = kth(a, dep[a] - dep[b]);",
+   "        if (a == b) return a;",
+   "        for (int i = LOG; i >= 0; i--) if (up[i][a] != up[i][b]) { a = up[i][a]; b = up[i][b]; }",
+   "        return up[0][a];",
+   "    }",
+   "    int dist(int a, int b) { return dep[a] + dep[b] - 2 * dep[lca(a, b)]; }",
+   "};"
+  ],
+  "description": "[02_graphs] LCA con binary lifting, k-esimo ancestro y distancia (BFS iterativo) | O(n log n) build, O(log n) query"
+ },
+ "lca_sparse": {
+  "prefix": [
+   "lca_sparse"
+  ],
+  "body": [
+   "struct LCAFast {",
+   "    vector<vi> st; vi tin, tout, par;",
+   "    int mn(int a, int b) const { return tin[a] < tin[b] ? a : b; }",
+   "    LCAFast(const vector<vi>& g, int root = 0) {",
+   "        int n = g.size(); tin.assign(n, -1); tout.assign(n, 0); par.assign(n, root);",
+   "        vi ord, stk = {root}, it(n, 0); int T = 0;",
+   "        tin[root] = T++; ord.push_back(root);",
+   "        while (!stk.empty()) { // DFS iterativo en preorden",
+   "            int u = stk.back();",
+   "            if (it[u] < (int)g[u].size()) {",
+   "                int v = g[u][it[u]++];",
+   "                if (v == par[u] && u != root) continue;",
+   "                if (v == root) continue;",
+   "                par[v] = u; tin[v] = T++; ord.push_back(v); stk.push_back(v);",
+   "            } else { tout[u] = T; stk.pop_back(); }",
+   "        }",
+   "        int LG = __lg(max(n, 1)) + 1;",
+   "        st.assign(LG, vi(n));",
+   "        for (int i = 0; i < n; i++) st[0][i] = par[ord[i]];",
+   "        for (int k = 1; k < LG; k++) for (int i = 0; i + (1 << k) <= n; i++)",
+   "            st[k][i] = mn(st[k - 1][i], st[k - 1][i + (1 << (k - 1))]);",
+   "    }",
+   "    bool is_anc(int a, int b) const { return tin[a] <= tin[b] && tout[b] <= tout[a]; } // a ancestro de b",
+   "    int lca(int u, int v) const {",
+   "        if (u == v) return u;",
+   "        int l = tin[u], r = tin[v]; if (l > r) swap(l, r);",
+   "        l++; int k = __lg(r - l + 1);",
+   "        return mn(st[k][l], st[k][r - (1 << k) + 1]);",
+   "    }",
+   "};"
+  ],
+  "description": "[02_graphs] LCA O(1) con sparse table sobre preorden (tin[] util para subarboles y arbol virtual) | O(n log n) build, O(1) query"
+ },
+ "manhattan_mst": {
+  "prefix": [
+   "manhattan_mst"
+  ],
+  "body": [
+   "ll manhattan_mst(vector<pii> ps) {",
+   "    int n = ps.size(); vi id(n); iota(all(id), 0);",
+   "    vector<array<int, 3>> edges;",
+   "    for (int k = 0; k < 4; k++) {",
+   "        sort(all(id), [&](int i, int j) { return ps[i].first + ps[i].second < ps[j].first + ps[j].second; });",
+   "        map<int, int> sweep;",
+   "        for (int i : id) {",
+   "            for (auto it = sweep.lower_bound(-ps[i].second); it != sweep.end(); sweep.erase(it++)) {",
+   "                int j = it->second;",
+   "                int dx = ps[i].first - ps[j].first, dy = ps[i].second - ps[j].second;",
+   "                if (dy > dx) break;",
+   "                edges.push_back({dy + dx, i, j});",
+   "            }",
+   "            sweep[-ps[i].second] = i;",
+   "        }",
+   "        for (auto& p : ps) { if (k & 1) p.first = -p.first; else swap(p.first, p.second); }",
+   "    }",
+   "    sort(all(edges)); vi p(n); iota(all(p), 0);",
+   "    function<int(int)> find = [&](int x) { return p[x] == x ? x : p[x] = find(p[x]); };",
+   "    ll total = 0;",
+   "    for (auto& e : edges) { int a = find(e[1]), b = find(e[2]); if (a != b) { p[a] = b; total += e[0]; } }",
+   "    return total;",
+   "}"
+  ],
+  "description": "[02_graphs] MST con distancia Manhattan entre puntos (KACTL): genera O(n) aristas candidatas y corre Kruskal | O(n log n)"
+ },
+ "matrix_tree": {
+  "prefix": [
+   "matrix_tree"
+  ],
+  "body": [
+   "ll count_spanning_trees(int n, const vector<pii>& edges) {",
+   "    auto pw = [](ll b, ll e) { ll r = 1; b %= MOD; for (; e; e >>= 1, b = b * b % MOD) if (e & 1) r = r * b % MOD; return r; };",
+   "    vector<vll> a(n, vll(n, 0));",
+   "    for (auto [u, v] : edges) if (u != v) { a[u][u]++; a[v][v]++; a[u][v]--; a[v][u]--; }",
+   "    int m = n - 1; // quitar fila y columna 0",
+   "    vector<vll> b(m, vll(m));",
+   "    for (int i = 0; i < m; i++) for (int j = 0; j < m; j++) b[i][j] = ((a[i + 1][j + 1] % MOD) + MOD) % MOD;",
+   "    ll det = 1;",
+   "    for (int i = 0; i < m; i++) {",
+   "        int p = -1; for (int j = i; j < m; j++) if (b[j][i]) { p = j; break; }",
+   "        if (p < 0) return 0;",
+   "        if (p != i) { swap(b[p], b[i]); det = (MOD - det) % MOD; }",
+   "        det = det * b[i][i] % MOD; ll iv = pw(b[i][i], MOD - 2);",
+   "        for (int j = i + 1; j < m; j++) {",
+   "            ll f = b[j][i] * iv % MOD; if (!f) continue;",
+   "            for (int k = i; k < m; k++) b[j][k] = ((b[j][k] - f * b[i][k]) % MOD + MOD) % MOD;",
+   "        }",
+   "    }",
+   "    return det;",
+   "}"
+  ],
+  "description": "[02_graphs] Teorema de Kirchhoff: numero de arboles generadores de un multigrafo (mod MOD primo) | O(n^3)"
+ },
+ "prim": {
+  "prefix": [
+   "prim"
+  ],
+  "body": [
+   "ll prim(const vector<vector<pair<int, ll>>>& g) {",
+   "    int n = g.size(); vector<bool> in(n, false); ll total = 0; int cnt = 0;",
+   "    priority_queue<pair<ll, int>, vector<pair<ll, int>>, greater<>> pq;",
+   "    pq.push({0, 0});",
+   "    while (!pq.empty()) {",
+   "        auto [w, u] = pq.top(); pq.pop();",
+   "        if (in[u]) continue;",
+   "        in[u] = true; total += w; cnt++;",
+   "        for (auto [v, c] : g[u]) if (!in[v]) pq.push({c, v});",
+   "    }",
+   "    return cnt == n ? total : -1;",
+   "}"
+  ],
+  "description": "[02_graphs] MST con Prim (heap); g[u] = {(v, w)}; devuelve -1 si no es conexo | O(E log V)"
+ },
+ "prufer": {
+  "prefix": [
+   "prufer"
+  ],
+  "body": [
+   "vector<int> prufer_encode(int n, const vector<pii>& edges) {",
+   "    vector<set<int>> g(n);",
+   "    for (auto [u, v] : edges) { g[u].insert(v); g[v].insert(u); }",
+   "    set<int> leaves; for (int i = 0; i < n; i++) if (g[i].size() == 1) leaves.insert(i);",
+   "    vi code;",
+   "    for (int i = 0; i < n - 2; i++) {",
+   "        int leaf = *leaves.begin(); leaves.erase(leaves.begin());",
+   "        int nb = *g[leaf].begin(); code.push_back(nb);",
+   "        g[nb].erase(leaf); if (g[nb].size() == 1) leaves.insert(nb);",
+   "    }",
+   "    return code;",
+   "}",
+   "vector<pii> prufer_decode(const vi& code) {",
+   "    int n = code.size() + 2; vi deg(n, 1); for (int x : code) deg[x]++;",
+   "    set<int> leaves; for (int i = 0; i < n; i++) if (deg[i] == 1) leaves.insert(i);",
+   "    vector<pii> edges;",
+   "    for (int x : code) {",
+   "        int leaf = *leaves.begin(); leaves.erase(leaves.begin());",
+   "        edges.push_back({leaf, x});",
+   "        if (--deg[x] == 1) leaves.insert(x);",
+   "    }",
+   "    int a = *leaves.begin(), b = *leaves.rbegin(); edges.push_back({a, b});",
+   "    return edges;",
+   "}"
+  ],
+  "description": "[02_graphs] Codigo de Prufer: arbol (aristas) <-> secuencia de n-2 elementos | O(n log n)"
+ },
+ "rerooting": {
+  "prefix": [
+   "rerooting"
+  ],
+  "body": [
+   "struct Rerooting {",
+   "    using T = ll;",
+   "    static T id() { return 0; }                                    // neutro de merge",
+   "    static T merge(T a, T b) { return max(a, b); }                // combina aportes de hijos",
+   "    static T lift(T dp_child, int child, int parent) { return dp_child + 1; } // aporte del hijo al padre",
+   "    int n; vector<vi> g; vi par, ord; vector<T> down, upc, res;",
+   "    Rerooting(const vector<vi>& g) : n(g.size()), g(g), par(n, -1), down(n, id()), upc(n, id()), res(n) {}",
+   "    void run(int root = 0) { // res[v] = dp con raiz en v",
+   "        ord.assign(1, root);",
+   "        for (int i = 0; i < (int)ord.size(); i++) { int u = ord[i]; for (int v : g[u]) if (v != par[u]) { par[v] = u; ord.push_back(v); } }",
+   "        for (int i = n - 1; i >= 0; i--) {",
+   "            int u = ord[i]; T acc = id();",
+   "            for (int v : g[u]) if (v != par[u]) acc = merge(acc, lift(down[v], v, u));",
+   "            down[u] = acc;",
+   "        }",
+   "        for (int u : ord) {",
+   "            vi ch; for (int v : g[u]) if (v != par[u]) ch.push_back(v);",
+   "            int k = ch.size(); vector<T> pre(k + 1), suf(k + 1);",
+   "            pre[0] = upc[u]; suf[k] = id();",
+   "            for (int i = 0; i < k; i++) pre[i + 1] = merge(pre[i], lift(down[ch[i]], ch[i], u));",
+   "            for (int i = k - 1; i >= 0; i--) suf[i] = merge(lift(down[ch[i]], ch[i], u), suf[i + 1]);",
+   "            for (int i = 0; i < k; i++) upc[ch[i]] = lift(merge(pre[i], suf[i + 1]), u, ch[i]);",
+   "            res[u] = merge(down[u], upc[u]);",
+   "        }",
+   "    }",
+   "};"
+  ],
+  "description": "[02_graphs] Rerooting generico de DP en arboles (por defecto: excentricidad = distancia maxima a otro nodo) | O(n)"
+ },
+ "scc_kosaraju": {
+  "prefix": [
+   "scc_kosaraju"
+  ],
+  "body": [
+   "struct SCCK {",
+   "    int n, nc = 0; vector<vi> g, rg; vi comp, order;",
+   "    SCCK(int n = 0) : n(n), g(n), rg(n), comp(n, -1) {}",
+   "    void add_edge(int u, int v) { g[u].push_back(v); rg[v].push_back(u); }",
+   "    void run() {",
+   "        vector<bool> vis(n, false);",
+   "        for (int s = 0; s < n; s++) {",
+   "            if (vis[s]) continue;",
+   "            vector<pii> st = {{s, 0}}; vis[s] = true;",
+   "            while (!st.empty()) {",
+   "                int u = st.back().first, i = st.back().second;",
+   "                if (i < (int)g[u].size()) {",
+   "                    st.back().second++;",
+   "                    int v = g[u][i];",
+   "                    if (!vis[v]) { vis[v] = true; st.push_back({v, 0}); }",
+   "                } else { order.push_back(u); st.pop_back(); }",
+   "            }",
+   "        }",
+   "        for (int k = n - 1; k >= 0; k--) {",
+   "            int s = order[k]; if (comp[s] != -1) continue;",
+   "            vi st = {s}; comp[s] = nc;",
+   "            while (!st.empty()) {",
+   "                int u = st.back(); st.pop_back();",
+   "                for (int v : rg[u]) if (comp[v] == -1) { comp[v] = nc; st.push_back(v); }",
+   "            }",
+   "            nc++;",
+   "        }",
+   "    }",
+   "};"
+  ],
+  "description": "[02_graphs] SCC con Kosaraju iterativo (seguro para grafos profundos). comp[] en orden topologico | O(V + E)"
+ },
+ "scc_tarjan": {
+  "prefix": [
+   "scc_tarjan"
+  ],
+  "body": [
+   "struct SCC {",
+   "    int n, timer = 0, ncomp = 0;",
+   "    vector<vector<int>> g; vector<int> low, tin, comp, st; vector<bool> onst;",
+   "    SCC(int n = 0) : n(n), g(n), low(n), tin(n, -1), comp(n, -1), onst(n, false) {}",
+   "    void add_edge(int u, int v) { g[u].push_back(v); }",
+   "    void dfs(int u) {",
+   "        tin[u] = low[u] = timer++; st.push_back(u); onst[u] = true;",
+   "        for (int v : g[u]) {",
+   "            if (tin[v] == -1) { dfs(v); low[u] = min(low[u], low[v]); }",
+   "            else if (onst[v]) low[u] = min(low[u], tin[v]);",
+   "        }",
+   "        if (low[u] == tin[u]) {",
+   "            while (true) {",
+   "                int v = st.back(); st.pop_back(); onst[v] = false; comp[v] = ncomp;",
+   "                if (v == u) break;",
+   "            }",
+   "            ncomp++;",
+   "        }",
+   "    }",
+   "    void run() { for (int i = 0; i < n; i++) if (tin[i] == -1) dfs(i); }",
+   "    // arista u->v entre componentes distintas cumple comp[u] > comp[v]",
+   "    vector<vector<int>> condensation() {",
+   "        vector<vector<int>> dag(ncomp);",
+   "        for (int u = 0; u < n; u++) for (int v : g[u]) if (comp[u] != comp[v]) dag[comp[u]].push_back(comp[v]);",
+   "        for (auto& x : dag) { sort(all(x)); x.erase(unique(all(x)), x.end()); }",
+   "        return dag;",
+   "    }",
+   "};"
+  ],
+  "description": "[02_graphs] Componentes fuertemente conexas (Tarjan, recursivo). comp[] en orden topologico inverso | O(V + E)"
+ },
+ "spfa": {
+  "prefix": [
+   "spfa"
+  ],
+  "body": [
+   "bool spfa(const vector<vector<pair<int, ll>>>& g, int s, vector<ll>& d) {",
+   "    int n = g.size(); d.assign(n, INF);",
+   "    vector<int> cnt(n, 0); vector<bool> inq(n, false); queue<int> q;",
+   "    d[s] = 0; q.push(s); inq[s] = true;",
+   "    while (!q.empty()) {",
+   "        int u = q.front(); q.pop(); inq[u] = false;",
+   "        for (auto [v, w] : g[u])",
+   "            if (d[u] + w < d[v]) {",
+   "                d[v] = d[u] + w;",
+   "                if (!inq[v]) { q.push(v); inq[v] = true; if (++cnt[v] > n) return false; }",
+   "            }",
+   "    }",
+   "    return true;",
+   "}"
+  ],
+  "description": "[02_graphs] SPFA (Bellman-Ford con cola); devuelve false si hay ciclo negativo alcanzable | O(V * E) peor caso, rapido en practica"
+ },
+ "topo_sort": {
+  "prefix": [
+   "topo_sort"
+  ],
+  "body": [
+   "vector<int> topo_sort(const vector<vector<int>>& g) {",
+   "    int n = g.size(); vector<int> in(n, 0), order;",
+   "    for (int u = 0; u < n; u++) for (int v : g[u]) in[v]++;",
+   "    queue<int> q; // para lexicograficamente menor: priority_queue con greater<>",
+   "    for (int i = 0; i < n; i++) if (!in[i]) q.push(i);",
+   "    while (!q.empty()) {",
+   "        int u = q.front(); q.pop(); order.push_back(u);",
+   "        for (int v : g[u]) if (--in[v] == 0) q.push(v);",
+   "    }",
+   "    if ((int)order.size() != n) return {};",
+   "    return order;",
+   "}"
+  ],
+  "description": "[02_graphs] Orden topologico (Kahn); devuelve vacio si hay ciclo | O(V + E)"
+ },
+ "tree_diameter": {
+  "prefix": [
+   "tree_diameter"
+  ],
+  "body": [
+   "vector<ll> tree_dist(const vector<vector<pair<int, ll>>>& g, int s) {",
+   "    vector<ll> d(g.size(), -1); d[s] = 0; vi st = {s};",
+   "    while (!st.empty()) {",
+   "        int u = st.back(); st.pop_back();",
+   "        for (auto [v, w] : g[u]) if (d[v] < 0) { d[v] = d[u] + w; st.push_back(v); }",
+   "    }",
+   "    return d;",
+   "}",
+   "array<ll, 3> tree_diameter(const vector<vector<pair<int, ll>>>& g) {",
+   "    auto d0 = tree_dist(g, 0);",
+   "    int a = max_element(all(d0)) - d0.begin();",
+   "    auto da = tree_dist(g, a);",
+   "    int b = max_element(all(da)) - da.begin();",
+   "    return {da[b], a, b};",
+   "}"
+  ],
+  "description": "[02_graphs] Diametro de un arbol ponderado (dos recorridos); devuelve (largo, extremo u, extremo v) | O(n)"
+ },
+ "tree_hash": {
+  "prefix": [
+   "tree_hash"
+  ],
+  "body": [
+   "map<vi, int> canon_ids; // compartido entre todos los arboles que se comparan",
+   "int rooted_hash(const vector<vi>& g, int root) {",
+   "    int n = g.size(); vi par(n, -1), ord = {root}, id(n);",
+   "    for (int i = 0; i < (int)ord.size(); i++) { int u = ord[i]; for (int v : g[u]) if (v != par[u]) { par[v] = u; ord.push_back(v); } }",
+   "    for (int i = n - 1; i >= 0; i--) {",
+   "        int u = ord[i]; vi ch;",
+   "        for (int v : g[u]) if (v != par[u]) ch.push_back(id[v]);",
+   "        sort(all(ch));",
+   "        auto it = canon_ids.find(ch);",
+   "        if (it == canon_ids.end()) it = canon_ids.emplace(ch, canon_ids.size()).first;",
+   "        id[u] = it->second;",
+   "    }",
+   "    return id[root];",
+   "}",
+   "int unrooted_hash(const vector<vi>& g) { // dos arboles son isomorfos <=> mismo valor",
+   "    int n = g.size(); vi deg(n), leaves, centers;",
+   "    for (int i = 0; i < n; i++) { deg[i] = g[i].size(); if (deg[i] <= 1) leaves.push_back(i); }",
+   "    int rem = n;",
+   "    while (rem > 2) {",
+   "        vi nl; rem -= leaves.size();",
+   "        for (int u : leaves) for (int v : g[u]) if (--deg[v] == 1) nl.push_back(v);",
+   "        leaves = nl;",
+   "    }",
+   "    centers = leaves; int best = INT_MAX;",
+   "    for (int c : centers) best = min(best, rooted_hash(g, c));",
+   "    return best;",
+   "}"
+  ],
+  "description": "[02_graphs] Isomorfismo de arboles (AHU con ids canonicos compartidos); enraizado y sin raiz (por centros) | O(n log n)"
+ },
+ "two_sat": {
+  "prefix": [
+   "two_sat"
+  ],
+  "body": [
+   "struct TwoSAT {",
+   "    int n, timer = 0, nc = 0;",
+   "    vector<vi> g; vi comp, tin, low, st; vector<bool> onst, val;",
+   "    TwoSAT(int n = 0) : n(n), g(2 * n), comp(2 * n, -1), tin(2 * n, -1), low(2 * n, 0), onst(2 * n, false) {}",
+   "    // (x_a == va) OR (x_b == vb)",
+   "    void add_or(int a, bool va, int b, bool vb) {",
+   "        g[2 * a + va].push_back(2 * b + !vb);",
+   "        g[2 * b + vb].push_back(2 * a + !va);",
+   "    }",
+   "    void add_imply(int a, bool va, int b, bool vb) { add_or(a, !va, b, vb); } // (x_a==va) => (x_b==vb)",
+   "    void set_val(int a, bool va) { add_or(a, va, a, va); }                    // forzar x_a == va",
+   "    void dfs(int u) {",
+   "        tin[u] = low[u] = timer++; st.push_back(u); onst[u] = true;",
+   "        for (int v : g[u]) {",
+   "            if (tin[v] == -1) { dfs(v); low[u] = min(low[u], low[v]); }",
+   "            else if (onst[v]) low[u] = min(low[u], tin[v]);",
+   "        }",
+   "        if (low[u] == tin[u]) {",
+   "            while (true) { int v = st.back(); st.pop_back(); onst[v] = false; comp[v] = nc; if (v == u) break; }",
+   "            nc++;",
+   "        }",
+   "    }",
+   "    bool solve() { // true si es satisfacible; asignacion en val",
+   "        for (int i = 0; i < 2 * n; i++) if (tin[i] == -1) dfs(i);",
+   "        val.assign(n, false);",
+   "        for (int i = 0; i < n; i++) {",
+   "            if (comp[2 * i] == comp[2 * i + 1]) return false;",
+   "            val[i] = comp[2 * i] < comp[2 * i + 1];",
+   "        }",
+   "        return true;",
+   "    }",
+   "};"
+  ],
+  "description": "[02_graphs] 2-SAT con SCC (Tarjan). Variable i: literal verdadero 2i, falso 2i+1 | O(n + m)"
+ },
+ "virtual_tree": {
+  "prefix": [
+   "virtual_tree"
+  ],
+  "body": [
+   "// tin/tout: tiempos de entrada/salida (preorden); lca(u, v): funcion LCA (por ejemplo LCAFast)",
+   "template <class L> vector<pii> virtual_tree(vi nodes, const vi& tin, const vi& tout, L lca) {",
+   "    auto cmp = [&](int a, int b) { return tin[a] < tin[b]; };",
+   "    sort(all(nodes), cmp);",
+   "    int k = nodes.size();",
+   "    for (int i = 0; i + 1 < k; i++) nodes.push_back(lca(nodes[i], nodes[i + 1]));",
+   "    sort(all(nodes), cmp); nodes.erase(unique(all(nodes)), nodes.end());",
+   "    vector<pii> edges; vi st;",
+   "    for (int v : nodes) {",
+   "        while (!st.empty() && !(tin[st.back()] <= tin[v] && tout[v] <= tout[st.back()])) st.pop_back();",
+   "        if (!st.empty()) edges.push_back({st.back(), v});",
+   "        st.push_back(v);",
+   "    }",
+   "    return edges;",
+   "}"
+  ],
+  "description": "[02_graphs] Arbol virtual (auxiliar): comprime un arbol a los nodos dados + sus LCAs. Devuelve aristas (padre, hijo) | O(k log k)"
+ },
+ "bipartite_min_path_cover": {
+  "prefix": [
+   "bipartite_min_path_cover"
+  ],
+  "body": [
+   "// edges dirigidos u->v en un DAG de n nodos. Devuelve el minimo numero de caminos disjuntos en vertices",
+   "int min_path_cover(int n, const vector<pii>& edges) {",
+   "    vector<vi> g(n); for (auto [u, v] : edges) g[u].push_back(v);",
+   "    vi mr(n, -1), vis(n, 0); int stamp = 0, match = 0;",
+   "    function<bool(int)> dfs = [&](int u) {",
+   "        if (vis[u] == stamp) return false; vis[u] = stamp;",
+   "        for (int v : g[u]) if (mr[v] < 0 || dfs(mr[v])) { mr[v] = u; return true; }",
+   "        return false;",
+   "    };",
+   "    for (int u = 0; u < n; u++) { stamp++; if (dfs(u)) match++; }",
+   "    return n - match; // con clausura transitiva previa => cadenas (Dilworth) = antichain maximo",
+   "}"
+  ],
+  "description": "[03_flow_matching] Cobertura minima de caminos disjuntos en un DAG (= n - matching) y antichain maximo (Dilworth) via Kuhn | O(V * E)"
+ },
+ "blossom": {
+  "prefix": [
+   "blossom"
+  ],
+  "body": [
+   "struct Blossom {",
+   "    int n; vector<vi> g; vi match, p, base, q; vector<bool> used, blossom;",
+   "    Blossom(int n = 0) : n(n), g(n), match(n, -1), p(n), base(n) {}",
+   "    void add_edge(int u, int v) { g[u].push_back(v); g[v].push_back(u); }",
+   "    int lca(int a, int b) {",
+   "        vector<bool> seen(n, false);",
+   "        for (;;) { a = base[a]; seen[a] = true; if (match[a] == -1) break; a = p[match[a]]; }",
+   "        for (;;) { b = base[b]; if (seen[b]) return b; b = p[match[b]]; }",
+   "    }",
+   "    void mark_path(int v, int b, int children) {",
+   "        while (base[v] != b) {",
+   "            blossom[base[v]] = blossom[base[match[v]]] = true;",
+   "            p[v] = children; children = match[v]; v = p[match[v]];",
+   "        }",
+   "    }",
+   "    int find_path(int root) {",
+   "        used.assign(n, false); p.assign(n, -1);",
+   "        for (int i = 0; i < n; i++) base[i] = i;",
+   "        used[root] = true; q.assign(1, root);",
+   "        for (int qh = 0; qh < (int)q.size(); qh++) {",
+   "            int v = q[qh];",
+   "            for (int to : g[v]) {",
+   "                if (base[v] == base[to] || match[v] == to) continue;",
+   "                if (to == root || (match[to] != -1 && p[match[to]] != -1)) {",
+   "                    int cb = lca(v, to); blossom.assign(n, false);",
+   "                    mark_path(v, cb, to); mark_path(to, cb, v);",
+   "                    for (int i = 0; i < n; i++) if (blossom[base[i]]) {",
+   "                        base[i] = cb;",
+   "                        if (!used[i]) { used[i] = true; q.push_back(i); }",
+   "                    }",
+   "                } else if (p[to] == -1) {",
+   "                    p[to] = v;",
+   "                    if (match[to] == -1) return to;",
+   "                    to = match[to]; used[to] = true; q.push_back(to);",
+   "                }",
+   "            }",
+   "        }",
+   "        return -1;",
+   "    }",
+   "    int solve() { // tamano del matching maximo; pareja de v en match[v]",
+   "        fill(all(match), -1); int res = 0;",
+   "        for (int i = 0; i < n; i++) if (match[i] == -1) {",
+   "            int v = find_path(i);",
+   "            if (v != -1) {",
+   "                res++;",
+   "                while (v != -1) { int pv = p[v], ppv = match[pv]; match[v] = pv; match[pv] = v; v = ppv; }",
+   "            }",
+   "        }",
+   "        return res;",
+   "    }",
+   "};"
+  ],
+  "description": "[03_flow_matching] Matching maximo en grafo general (Edmonds / Blossom) | O(V^3)"
+ },
+ "dinic": {
+  "prefix": [
+   "dinic"
+  ],
+  "body": [
+   "struct Dinic {",
+   "    struct E { int to; ll cap; };",
+   "    int n; vector<E> e; vector<vi> g; vi level, it;",
+   "    Dinic(int n = 0) : n(n), g(n), level(n), it(n) {}",
+   "    int add_edge(int u, int v, ll c, ll rc = 0) { // devuelve id de la arista",
+   "        g[u].push_back(e.size()); e.push_back({v, c});",
+   "        g[v].push_back(e.size()); e.push_back({u, rc});",
+   "        return (int)e.size() - 2;",
+   "    }",
+   "    bool bfs(int s, int t) {",
+   "        fill(all(level), -1); level[s] = 0; queue<int> q; q.push(s);",
+   "        while (!q.empty()) {",
+   "            int u = q.front(); q.pop();",
+   "            for (int id : g[u]) if (e[id].cap > 0 && level[e[id].to] < 0) { level[e[id].to] = level[u] + 1; q.push(e[id].to); }",
+   "        }",
+   "        return level[t] >= 0;",
+   "    }",
+   "    ll dfs(int u, int t, ll f) {",
+   "        if (u == t || !f) return f;",
+   "        ll pushed = 0;",
+   "        for (int& i = it[u]; i < (int)g[u].size(); i++) {",
+   "            int id = g[u][i], v = e[id].to;",
+   "            if (e[id].cap > 0 && level[v] == level[u] + 1) {",
+   "                ll r = dfs(v, t, min(f - pushed, e[id].cap));",
+   "                if (r) { e[id].cap -= r; e[id ^ 1].cap += r; pushed += r; if (pushed == f) return pushed; }",
+   "            }",
+   "        }",
+   "        return pushed;",
+   "    }",
+   "    ll maxflow(int s, int t) {",
+   "        ll flow = 0;",
+   "        while (bfs(s, t)) { fill(all(it), 0); flow += dfs(s, t, INF); }",
+   "        return flow;",
+   "    }",
+   "    ll flow_on(int id) { return e[id ^ 1].cap; }          // flujo en la arista id (si se creo con rc = 0)",
+   "    vector<bool> min_cut_side(int s) {                    // true = lado de s (llamar tras maxflow)",
+   "        vector<bool> vis(n, false); vi st = {s}; vis[s] = true;",
+   "        while (!st.empty()) {",
+   "            int u = st.back(); st.pop_back();",
+   "            for (int id : g[u]) if (e[id].cap > 0 && !vis[e[id].to]) { vis[e[id].to] = true; st.push_back(e[id].to); }",
+   "        }",
+   "        return vis;",
+   "    }",
+   "};"
+  ],
+  "description": "[03_flow_matching] Flujo maximo Dinic (capacidades ll), corte minimo y flujo por arista | O(V^2 E) general, O(E sqrt V) en grafos unitarios/bipartitos"
+ },
+ "hopcroft_karp": {
+  "prefix": [
+   "hopcroft_karp"
+  ],
+  "body": [
+   "struct HopcroftKarp {",
+   "    int nl, nr; vector<vi> g; vi ml, mr, dist, it;",
+   "    HopcroftKarp(int nl = 0, int nr = 0) : nl(nl), nr(nr), g(nl), ml(nl, -1), mr(nr, -1), dist(nl), it(nl) {}",
+   "    void add_edge(int l, int r) { g[l].push_back(r); }",
+   "    bool bfs() {",
+   "        queue<int> q;",
+   "        for (int l = 0; l < nl; l++) { if (ml[l] < 0) { dist[l] = 0; q.push(l); } else dist[l] = -1; }",
+   "        bool found = false;",
+   "        while (!q.empty()) {",
+   "            int u = q.front(); q.pop();",
+   "            for (int v : g[u]) {",
+   "                int w = mr[v];",
+   "                if (w < 0) found = true;",
+   "                else if (dist[w] < 0) { dist[w] = dist[u] + 1; q.push(w); }",
+   "            }",
+   "        }",
+   "        return found;",
+   "    }",
+   "    bool dfs(int u) {",
+   "        for (int& i = it[u]; i < (int)g[u].size(); i++) {",
+   "            int v = g[u][i], w = mr[v];",
+   "            if (w < 0 || (dist[w] == dist[u] + 1 && dfs(w))) { ml[u] = v; mr[v] = u; return true; }",
+   "        }",
+   "        dist[u] = -1;",
+   "        return false;",
+   "    }",
+   "    int run() {",
+   "        int res = 0;",
+   "        while (bfs()) { fill(all(it), 0); for (int l = 0; l < nl; l++) if (ml[l] < 0 && dfs(l)) res++; }",
+   "        return res;",
+   "    }",
+   "    // cobertura minima de vertices: (izq[i], der[j]) true = en la cobertura. Llamar tras run()",
+   "    pair<vector<bool>, vector<bool>> vertex_cover() {",
+   "        vector<bool> visL(nl, false), visR(nr, false); vi st;",
+   "        for (int l = 0; l < nl; l++) if (ml[l] < 0) { visL[l] = true; st.push_back(l); }",
+   "        while (!st.empty()) {",
+   "            int u = st.back(); st.pop_back();",
+   "            for (int v : g[u]) if (!visR[v]) { visR[v] = true; int w = mr[v]; if (w >= 0 && !visL[w]) { visL[w] = true; st.push_back(w); } }",
+   "        }",
+   "        vector<bool> cl(nl); for (int i = 0; i < nl; i++) cl[i] = !visL[i];",
+   "        return {cl, visR};",
+   "    }",
+   "};"
+  ],
+  "description": "[03_flow_matching] Matching maximo bipartito (Hopcroft-Karp) + cobertura minima de vertices (Konig) | O(E sqrt V)"
+ },
+ "hungarian": {
+  "prefix": [
+   "hungarian"
+  ],
+  "body": [
+   "// a[1..n][1..m]; asig[i] = columna asignada a la fila i. Devuelve costo minimo",
+   "ll hungarian(const vector<vll>& a, vi& asig) {",
+   "    int n = a.size() - 1, m = a[0].size() - 1;",
+   "    vll u(n + 1, 0), v(m + 1, 0); vi p(m + 1, 0), way(m + 1, 0);",
+   "    for (int i = 1; i <= n; i++) {",
+   "        p[0] = i; int j0 = 0; vll minv(m + 1, INF); vector<bool> used(m + 1, false);",
+   "        do {",
+   "            used[j0] = true; int i0 = p[j0], j1 = 0; ll delta = INF;",
+   "            for (int j = 1; j <= m; j++) if (!used[j]) {",
+   "                ll cur = a[i0][j] - u[i0] - v[j];",
+   "                if (cur < minv[j]) { minv[j] = cur; way[j] = j0; }",
+   "                if (minv[j] < delta) { delta = minv[j]; j1 = j; }",
+   "            }",
+   "            for (int j = 0; j <= m; j++) { if (used[j]) { u[p[j]] += delta; v[j] -= delta; } else minv[j] -= delta; }",
+   "            j0 = j1;",
+   "        } while (p[j0] != 0);",
+   "        do { int j1 = way[j0]; p[j0] = p[j1]; j0 = j1; } while (j0);",
+   "    }",
+   "    asig.assign(n + 1, 0);",
+   "    for (int j = 1; j <= m; j++) if (p[j]) asig[p[j]] = j;",
+   "    return -v[0];",
+   "}"
+  ],
+  "description": "[03_flow_matching] Algoritmo hungaro: asignacion de costo minimo (n filas <= m columnas), indices desde 1 | O(n^2 m)"
+ },
+ "kuhn": {
+  "prefix": [
+   "kuhn"
+  ],
+  "body": [
+   "struct Kuhn {",
+   "    int nl, nr; vector<vi> g; vi mr, vis; int stamp = 0;",
+   "    Kuhn(int nl = 0, int nr = 0) : nl(nl), nr(nr), g(nl), mr(nr, -1), vis(nl, 0) {}",
+   "    void add_edge(int l, int r) { g[l].push_back(r); }",
+   "    bool dfs(int u) {",
+   "        if (vis[u] == stamp) return false;",
+   "        vis[u] = stamp;",
+   "        for (int v : g[u]) if (mr[v] < 0 || dfs(mr[v])) { mr[v] = u; return true; }",
+   "        return false;",
+   "    }",
+   "    int run() { int res = 0; for (int l = 0; l < nl; l++) { stamp++; if (dfs(l)) res++; } return res; }",
+   "};"
+  ],
+  "description": "[03_flow_matching] Matching bipartito simple (Kuhn / aumentantes), facil de escribir para n pequenos | O(V * E)"
+ },
+ "mcmf": {
+  "prefix": [
+   "mcmf"
+  ],
+  "body": [
+   "struct MCMF {",
+   "    struct E { int to; ll cap, cost; };",
+   "    int n; vector<E> e; vector<vi> g;",
+   "    MCMF(int n = 0) : n(n), g(n) {}",
+   "    int add_edge(int u, int v, ll cap, ll cost) {",
+   "        g[u].push_back(e.size()); e.push_back({v, cap, cost});",
+   "        g[v].push_back(e.size()); e.push_back({u, 0, -cost});",
+   "        return (int)e.size() - 2;",
+   "    }",
+   "    pair<ll, ll> run(int s, int t, ll maxf = INF) {",
+   "        ll flow = 0, cost = 0;",
+   "        while (flow < maxf) {",
+   "            vll d(n, INF); vi inq(n, 0), pe(n, -1); deque<int> q;",
+   "            d[s] = 0; q.push_back(s);",
+   "            while (!q.empty()) {",
+   "                int u = q.front(); q.pop_front(); inq[u] = 0;",
+   "                for (int id : g[u]) {",
+   "                    int v = e[id].to;",
+   "                    if (e[id].cap > 0 && d[u] + e[id].cost < d[v]) {",
+   "                        d[v] = d[u] + e[id].cost; pe[v] = id;",
+   "                        if (!inq[v]) { inq[v] = 1; q.push_back(v); }",
+   "                    }",
+   "                }",
+   "            }",
+   "            if (d[t] == INF) break;",
+   "            ll f = maxf - flow;",
+   "            for (int v = t; v != s; v = e[pe[v] ^ 1].to) f = min(f, e[pe[v]].cap);",
+   "            for (int v = t; v != s; v = e[pe[v] ^ 1].to) { e[pe[v]].cap -= f; e[pe[v] ^ 1].cap += f; }",
+   "            flow += f; cost += f * d[t];",
+   "        }",
+   "        return {flow, cost};",
+   "    }",
+   "};"
+  ],
+  "description": "[03_flow_matching] Flujo de costo minimo (SPFA / Bellman-Ford con cola); devuelve (flujo, costo) | O(F * V * E) peor caso"
+ },
+ "stoer_wagner": {
+  "prefix": [
+   "stoer_wagner"
+  ],
+  "body": [
+   "pair<ll, vi> stoer_wagner(vector<vll> mat) {",
+   "    const ll NEG = -(ll)4e18;",
+   "    pair<ll, vi> best = {INF, {}};",
+   "    int n = mat.size(); vector<vi> co(n);",
+   "    for (int i = 0; i < n; i++) co[i] = {i};",
+   "    for (int ph = 1; ph < n; ph++) {",
+   "        vll w = mat[0]; int s = 0, t = 0;",
+   "        for (int it = 0; it < n - ph; it++) {",
+   "            w[t] = NEG; s = t; t = max_element(all(w)) - w.begin();",
+   "            for (int i = 0; i < n; i++) w[i] += mat[t][i];",
+   "        }",
+   "        best = min(best, make_pair(w[t] - mat[t][t], co[t]));",
+   "        co[s].insert(co[s].end(), all(co[t]));",
+   "        for (int i = 0; i < n; i++) mat[s][i] += mat[t][i];",
+   "        for (int i = 0; i < n; i++) mat[i][s] = mat[s][i];",
+   "        mat[0][t] = NEG;",
+   "    }",
+   "    return best;",
+   "}"
+  ],
+  "description": "[03_flow_matching] Corte minimo global (Stoer-Wagner) en grafo no dirigido con pesos; devuelve (peso, nodos de un lado) | O(V^3)"
+ },
+ "aho_corasick": {
+  "prefix": [
+   "aho_corasick"
+  ],
+  "body": [
+   "struct AhoCorasick {",
+   "    vector<array<int, 26>> nxt; vi link, cnt; // cnt[v]: # de patrones que son sufijo del estado v (tras build)",
+   "    AhoCorasick() { new_node(); }",
+   "    int new_node() { nxt.emplace_back(); nxt.back().fill(-1); cnt.push_back(0); link.push_back(0); return nxt.size() - 1; }",
+   "    int add(const string& s) { // devuelve el nodo terminal del patron",
+   "        int v = 0;",
+   "        for (char ch : s) {",
+   "            int c = ch - 'a';",
+   "            if (nxt[v][c] == -1) { int u = new_node(); nxt[v][c] = u; }",
+   "            v = nxt[v][c];",
+   "        }",
+   "        cnt[v]++;",
+   "        return v;",
+   "    }",
+   "    void build() {",
+   "        queue<int> q;",
+   "        for (int c = 0; c < 26; c++) {",
+   "            if (nxt[0][c] == -1) nxt[0][c] = 0;",
+   "            else { link[nxt[0][c]] = 0; q.push(nxt[0][c]); }",
+   "        }",
+   "        while (!q.empty()) {",
+   "            int v = q.front(); q.pop(); cnt[v] += cnt[link[v]];",
+   "            for (int c = 0; c < 26; c++) {",
+   "                int u = nxt[v][c];",
+   "                if (u == -1) nxt[v][c] = nxt[link[v]][c];",
+   "                else { link[u] = nxt[link[v]][c]; q.push(u); }",
+   "            }",
+   "        }",
+   "    }",
+   "    ll count_matches(const string& t) { // total de apariciones de todos los patrones en t",
+   "        ll total = 0; int v = 0;",
+   "        for (char ch : t) { v = nxt[v][ch - 'a']; total += cnt[v]; }",
+   "        return total;",
+   "    }",
+   "};"
+  ],
+  "description": "[04_strings] Aho-Corasick (alfabeto a-z) con automata completo; cuenta ocurrencias de patrones en un texto | O(suma de patrones * 26 + texto)"
+ },
+ "kmp_automaton": {
+  "prefix": [
+   "kmp_automaton"
+  ],
+  "body": [
+   "struct KMPAut {",
+   "    int n; vector<array<int, 26>> go; // go[i][c]: nuevo estado desde i al leer c (estado n = match completo)",
+   "    KMPAut(const string& p) : n(p.size()), go(p.size() + 1) {",
+   "        vi pi(n, 0);",
+   "        for (int i = 1; i < n; i++) { int j = pi[i - 1]; while (j > 0 && p[i] != p[j]) j = pi[j - 1]; if (p[i] == p[j]) j++; pi[i] = j; }",
+   "        for (int i = 0; i <= n; i++) for (int c = 0; c < 26; c++) {",
+   "            if (i < n && p[i] - 'a' == c) go[i][c] = i + 1;",
+   "            else go[i][c] = i == 0 ? 0 : go[pi[i - 1]][c];",
+   "        }",
+   "    }",
+   "};"
+  ],
+  "description": "[04_strings] Automata KMP (transiciones precomputadas): util para DP sobre strings (alfabeto a-z) | O(n * 26)"
+ },
+ "lyndon_minrot": {
+  "prefix": [
+   "lyndon_minrot"
+  ],
+  "body": [
+   "vector<string> duval(const string& s) {",
+   "    int n = s.size(), i = 0; vector<string> res;",
+   "    while (i < n) {",
+   "        int j = i + 1, k = i;",
+   "        while (j < n && s[k] <= s[j]) { if (s[k] < s[j]) k = i; else k++; j++; }",
+   "        while (i <= k) { res.push_back(s.substr(i, j - k)); i += j - k; }",
+   "    }",
+   "    return res;",
+   "}",
+   "int min_rotation(string s) { // indice de inicio de la menor rotacion",
+   "    int n = s.size(); s += s; int i = 0, ans = 0;",
+   "    while (i < n) {",
+   "        ans = i; int j = i + 1, k = i;",
+   "        while (j < 2 * n && s[k] <= s[j]) { if (s[k] < s[j]) k = i; else k++; j++; }",
+   "        while (i <= k) i += j - k;",
+   "    }",
+   "    return ans;",
+   "}"
+  ],
+  "description": "[04_strings] Factorizacion de Lyndon (Duval) y rotacion minima lexicografica | O(n)"
+ },
+ "manacher": {
+  "prefix": [
+   "manacher"
+  ],
+  "body": [
+   "// d1[i]: # de palindromos impares centrados en i. d2[i]: # de palindromos pares con centro entre i-1 e i",
+   "pair<vi, vi> manacher(const string& s) {",
+   "    int n = s.size(); vi d1(n), d2(n);",
+   "    for (int i = 0, l = 0, r = -1; i < n; i++) {",
+   "        int k = (i > r) ? 1 : min(d1[l + r - i], r - i + 1);",
+   "        while (i - k >= 0 && i + k < n && s[i - k] == s[i + k]) k++;",
+   "        d1[i] = k--;",
+   "        if (i + k > r) { l = i - k; r = i + k; }",
+   "    }",
+   "    for (int i = 0, l = 0, r = -1; i < n; i++) {",
+   "        int k = (i > r) ? 0 : min(d2[l + r - i + 1], r - i + 1);",
+   "        while (i - k - 1 >= 0 && i + k < n && s[i - k - 1] == s[i + k]) k++;",
+   "        d2[i] = k--;",
+   "        if (i + k > r) { l = i - k - 1; r = i + k; }",
+   "    }",
+   "    return {d1, d2};",
+   "}"
+  ],
+  "description": "[04_strings] Manacher: palindromos impares (d1) y pares (d2) por centro | O(n)"
+ },
+ "palindromic_tree": {
+  "prefix": [
+   "palindromic_tree"
+  ],
+  "body": [
+   "struct Eertree {",
+   "    struct Node { int len = 0, link = 0; ll cnt = 0; array<int, 26> nxt; Node() { nxt.fill(-1); } };",
+   "    vector<Node> t; string s; int last;",
+   "    Eertree() { t.emplace_back(); t[0].len = -1; t.emplace_back(); t[1].len = 0; last = 1; } // 0: raiz imaginaria, 1: raiz vacia",
+   "    void add(char ch) {",
+   "        s.push_back(ch); int c = ch - 'a', i = s.size() - 1, cur = last;",
+   "        while (true) { int l = t[cur].len; if (i - 1 - l >= 0 && s[i - 1 - l] == ch) break; cur = t[cur].link; }",
+   "        if (t[cur].nxt[c] != -1) { last = t[cur].nxt[c]; t[last].cnt++; return; }",
+   "        int nw = t.size(); t.emplace_back(); t[nw].len = t[cur].len + 2;",
+   "        if (t[nw].len == 1) t[nw].link = 1;",
+   "        else {",
+   "            int p = t[cur].link;",
+   "            while (true) { int l = t[p].len; if (i - 1 - l >= 0 && s[i - 1 - l] == ch) break; p = t[p].link; }",
+   "            t[nw].link = t[p].nxt[c];",
+   "        }",
+   "        t[cur].nxt[c] = nw; t[nw].cnt = 1; last = nw;",
+   "    }",
+   "    void finish() { for (int v = t.size() - 1; v >= 2; v--) t[t[v].link].cnt += t[v].cnt; } // cnt = # ocurrencias totales",
+   "    int distinct() { return t.size() - 2; } // palindromos distintos",
+   "};"
+  ],
+  "description": "[04_strings] Eertree / arbol de palindromos: palindromos distintos y ocurrencias de cada uno | O(n * alfabeto)"
+ },
+ "prefix_function_kmp": {
+  "prefix": [
+   "prefix_function_kmp"
+  ],
+  "body": [
+   "vector<int> prefix_function(const string& s) {",
+   "    int n = s.size(); vector<int> pi(n, 0);",
+   "    for (int i = 1; i < n; i++) {",
+   "        int j = pi[i - 1];",
+   "        while (j > 0 && s[i] != s[j]) j = pi[j - 1];",
+   "        if (s[i] == s[j]) j++;",
+   "        pi[i] = j;",
+   "    }",
+   "    return pi;",
+   "}",
+   "vector<int> kmp_find(const string& t, const string& p) { // posiciones de inicio de p en t",
+   "    string s = p + '\\\\0' + t; auto pi = prefix_function(s); vector<int> res;",
+   "    for (int i = (int)p.size() + 1; i < (int)s.size(); i++)",
+   "        if (pi[i] == (int)p.size()) res.push_back(i - 2 * (int)p.size());",
+   "    return res;",
+   "}",
+   "int min_period(const string& s) { int n = s.size(); auto pi = prefix_function(s); int p = n - pi[n - 1]; return n % p == 0 ? p : n; }"
+  ],
+  "description": "[04_strings] Funcion prefijo (KMP), busqueda de patron, periodo minimo y conteo de ocurrencias de prefijos | O(n)"
+ },
+ "string_hash": {
+  "prefix": [
+   "string_hash"
+  ],
+  "body": [
+   "struct StrHash {",
+   "    static constexpr ull M = (1ULL << 61) - 1;",
+   "    ull B; vector<ull> h, pw;",
+   "    static ull mul(ull a, ull b) {",
+   "        __uint128_t t = (__uint128_t)a * b;",
+   "        ull r = (ull)(t & M) + (ull)(t >> 61);",
+   "        return r >= M ? r - M : r;",
+   "    }",
+   "    StrHash(const string& s = \"\") {",
+   "        B = rng() % (M - 1000) + 500; int n = s.size();",
+   "        h.assign(n + 1, 0); pw.assign(n + 1, 1);",
+   "        for (int i = 0; i < n; i++) {",
+   "            h[i + 1] = mul(h[i], B) + (ull)(unsigned char)s[i] + 1;",
+   "            if (h[i + 1] >= M) h[i + 1] -= M;",
+   "            pw[i + 1] = mul(pw[i], B);",
+   "        }",
+   "    }",
+   "    ull get(int l, int r) const { // hash de s[l, r)",
+   "        ull x = h[r] + M - mul(h[l], pw[r - l]);",
+   "        return x >= M ? x - M : x;",
+   "    }",
+   "};",
+   "// Para comparar hashes de strings distintos usar la MISMA base B (copiar B al otro objeto)"
+  ],
+  "description": "[04_strings] Hash polinomial de substrings modulo 2^61-1 con base aleatoria (resistente a hacks) | O(n) build, O(1) query"
+ },
+ "string_utils": {
+  "prefix": [
+   "string_utils"
+  ],
+  "body": [
+   "vector<string> split(const string& s, char d = ' ') {",
+   "    vector<string> r; string cur;",
+   "    for (char c : s) { if (c == d) { r.push_back(cur); cur.clear(); } else cur += c; }",
+   "    r.push_back(cur); return r;",
+   "}",
+   "string join(const vector<string>& v, const string& sep) {",
+   "    string r; for (size_t i = 0; i < v.size(); i++) { if (i) r += sep; r += v[i]; } return r;",
+   "}",
+   "string trim(const string& s) {",
+   "    size_t a = s.find_first_not_of(\" \\\\t\\\\r\\\\n\"); if (a == string::npos) return \"\";",
+   "    size_t b = s.find_last_not_of(\" \\\\t\\\\r\\\\n\"); return s.substr(a, b - a + 1);",
+   "}",
+   "string to_lower(string s) { for (auto& c : s) c = tolower(c); return s; }",
+   "string to_upper(string s) { for (auto& c : s) c = toupper(c); return s; }",
+   "bool is_palindrome(const string& s) { return equal(s.begin(), s.begin() + s.size() / 2, s.rbegin()); }"
+  ],
+  "description": "[04_strings] Utilidades: split, join, trim, to lower/upper, es palindromo, conteo de frecuencias, comparar substrings por hash-less | O(n)"
+ },
+ "suffix_array": {
+  "prefix": [
+   "suffix_array"
+  ],
+  "body": [
+   "struct SuffixArray {",
+   "    int n; vi sa, rnk, lcp; vector<vi> st; // lcp[i] = LCP(sa[i], sa[i+1])",
+   "    static vi sort_cyclic(const string& s) {",
+   "        int n = s.size(), cls = 1;",
+   "        vi p(n), c(n), cnt(max(256, n), 0);",
+   "        for (char ch : s) cnt[(unsigned char)ch]++;",
+   "        for (int i = 1; i < 256; i++) cnt[i] += cnt[i - 1];",
+   "        for (int i = 0; i < n; i++) p[--cnt[(unsigned char)s[i]]] = i;",
+   "        c[p[0]] = 0;",
+   "        for (int i = 1; i < n; i++) { if (s[p[i]] != s[p[i - 1]]) cls++; c[p[i]] = cls - 1; }",
+   "        vi pn(n), cn(n);",
+   "        for (int h = 0; (1 << h) < n; h++) {",
+   "            for (int i = 0; i < n; i++) { pn[i] = p[i] - (1 << h); if (pn[i] < 0) pn[i] += n; }",
+   "            fill(cnt.begin(), cnt.begin() + cls, 0);",
+   "            for (int i = 0; i < n; i++) cnt[c[pn[i]]]++;",
+   "            for (int i = 1; i < cls; i++) cnt[i] += cnt[i - 1];",
+   "            for (int i = n - 1; i >= 0; i--) p[--cnt[c[pn[i]]]] = pn[i];",
+   "            cn[p[0]] = 0; cls = 1;",
+   "            for (int i = 1; i < n; i++) {",
+   "                pii cur = {c[p[i]], c[(p[i] + (1 << h)) % n]}, prev = {c[p[i - 1]], c[(p[i - 1] + (1 << h)) % n]};",
+   "                if (cur != prev) cls++;",
+   "                cn[p[i]] = cls - 1;",
+   "            }",
+   "            c.swap(cn);",
+   "        }",
+   "        return p;",
+   "    }",
+   "    SuffixArray(string s = \"\") {",
+   "        n = s.size(); s += '\\\\0';",
+   "        sa = sort_cyclic(s); sa.erase(sa.begin());",
+   "        rnk.assign(n, 0); for (int i = 0; i < n; i++) rnk[sa[i]] = i;",
+   "        lcp.assign(max(n - 1, 0), 0);",
+   "        for (int i = 0, k = 0; i < n; i++) {",
+   "            if (rnk[i] == n - 1) { k = 0; continue; }",
+   "            int j = sa[rnk[i] + 1];",
+   "            while (i + k < n && j + k < n && s[i + k] == s[j + k]) k++;",
+   "            lcp[rnk[i]] = k; if (k) k--;",
+   "        }",
+   "    }",
+   "    void build_rmq() {",
+   "        int m = lcp.size(); if (!m) return;",
+   "        int LG = __lg(m) + 1; st.assign(LG, vi(m)); st[0] = lcp;",
+   "        for (int k = 1; k < LG; k++) for (int i = 0; i + (1 << k) <= m; i++) st[k][i] = min(st[k - 1][i], st[k - 1][i + (1 << (k - 1))]);",
+   "    }",
+   "    int lcp_suffix(int a, int b) { // LCP de los sufijos que empiezan en a y b (requiere build_rmq)",
+   "        if (a == b) return n - a;",
+   "        int l = min(rnk[a], rnk[b]), r = max(rnk[a], rnk[b]) - 1, k = __lg(r - l + 1);",
+   "        return min(st[k][l], st[k][r - (1 << k) + 1]);",
+   "    }",
+   "    // substrings distintos = n(n+1)/2 - sum(lcp)",
+   "};"
+  ],
+  "description": "[04_strings] Suffix array (doubling con counting sort) + LCP (Kasai) + LCP de dos sufijos con sparse table | O(n log n)"
+ },
+ "suffix_automaton": {
+  "prefix": [
+   "suffix_automaton"
+  ],
+  "body": [
+   "struct SAM {",
+   "    struct State { int len = 0, link = -1; bool clone = false; array<int, 26> nxt; State() { nxt.fill(-1); } };",
+   "    vector<State> st; int last = 0;",
+   "    SAM(int reserve = 0) { st.reserve(2 * reserve + 2); st.emplace_back(); }",
+   "    void extend(char ch) {",
+   "        int c = ch - 'a', cur = st.size(); st.emplace_back();",
+   "        st[cur].len = st[last].len + 1;",
+   "        int p = last;",
+   "        while (p != -1 && st[p].nxt[c] == -1) { st[p].nxt[c] = cur; p = st[p].link; }",
+   "        if (p == -1) st[cur].link = 0;",
+   "        else {",
+   "            int q = st[p].nxt[c];",
+   "            if (st[p].len + 1 == st[q].len) st[cur].link = q;",
+   "            else {",
+   "                int cl = st.size(); st.push_back(st[q]);",
+   "                st[cl].len = st[p].len + 1; st[cl].clone = true;",
+   "                while (p != -1 && st[p].nxt[c] == q) { st[p].nxt[c] = cl; p = st[p].link; }",
+   "                st[q].link = st[cur].link = cl;",
+   "            }",
+   "        }",
+   "        last = cur;",
+   "    }",
+   "    ll distinct_substrings() { ll r = 0; for (int i = 1; i < (int)st.size(); i++) r += st[i].len - st[st[i].link].len; return r; }",
+   "    vll occurrences() { // occ[v] = # de apariciones de las cadenas del estado v",
+   "        int m = st.size(); vll occ(m, 0); vi ord(m); iota(all(ord), 0);",
+   "        sort(all(ord), [&](int a, int b) { return st[a].len > st[b].len; });",
+   "        for (int v = 1; v < m; v++) if (!st[v].clone) occ[v] = 1;",
+   "        for (int v : ord) if (st[v].link > 0) occ[st[v].link] += occ[v];",
+   "        return occ;",
+   "    }",
+   "};"
+  ],
+  "description": "[04_strings] Automata de sufijos (alfabeto a-z): substrings distintos, ocurrencias por estado | O(n * alfabeto)"
+ },
+ "trie": {
+  "prefix": [
+   "trie"
+  ],
+  "body": [
+   "struct Trie {",
+   "    vector<array<int, 26>> ch; vi pref, endc;",
+   "    Trie() { new_node(); }",
+   "    int new_node() { ch.emplace_back(); ch.back().fill(-1); pref.push_back(0); endc.push_back(0); return ch.size() - 1; }",
+   "    void insert(const string& s) {",
+   "        int v = 0;",
+   "        for (char c : s) {",
+   "            int x = c - 'a';",
+   "            if (ch[v][x] == -1) { int u = new_node(); ch[v][x] = u; }",
+   "            v = ch[v][x]; pref[v]++;",
+   "        }",
+   "        endc[v]++;",
+   "    }",
+   "    int count_prefix(const string& s) { // # de strings insertados con prefijo s",
+   "        int v = 0;",
+   "        for (char c : s) { v = ch[v][c - 'a']; if (v == -1) return 0; }",
+   "        return pref[v];",
+   "    }",
+   "    int count_word(const string& s) {",
+   "        int v = 0;",
+   "        for (char c : s) { v = ch[v][c - 'a']; if (v == -1) return 0; }",
+   "        return endc[v];",
+   "    }",
+   "};"
+  ],
+  "description": "[04_strings] Trie de strings (a-z): insertar, buscar, contar prefijos | O(|s|) por operacion"
+ },
+ "z_function": {
+  "prefix": [
+   "z_function"
+  ],
+  "body": [
+   "vector<int> z_function(const string& s) {",
+   "    int n = s.size(); vector<int> z(n, 0);",
+   "    for (int i = 1, l = 0, r = 0; i < n; i++) {",
+   "        if (i < r) z[i] = min(r - i, z[i - l]);",
+   "        while (i + z[i] < n && s[z[i]] == s[i + z[i]]) z[i]++;",
+   "        if (i + z[i] > r) { l = i; r = i + z[i]; }",
+   "    }",
+   "    return z;",
+   "}"
+  ],
+  "description": "[04_strings] Z-function: z[i] = LCP de s y s[i..] | O(n)"
+ },
+ "berlekamp_massey": {
+  "prefix": [
+   "berlekamp_massey"
+  ],
+  "body": [
+   "// Devuelve C tal que s[i] = sum_{j} C[j] * s[i-j-1]",
+   "vll berlekamp_massey(vll s) {",
+   "    auto pw = [](ll b, ll e) { ll r = 1; b %= MOD; if (b < 0) b += MOD; for (; e; e >>= 1, b = b * b % MOD) if (e & 1) r = r * b % MOD; return r; };",
+   "    int n = s.size(), L = 0, m = 0; vll C(n), B(n), T;",
+   "    for (auto& x : s) x = ((x % MOD) + MOD) % MOD;",
+   "    C[0] = B[0] = 1; ll b = 1;",
+   "    for (int i = 0; i < n; i++) {",
+   "        ++m; ll d = s[i];",
+   "        for (int j = 1; j <= L; j++) d = (d + C[j] * s[i - j]) % MOD;",
+   "        if (!d) continue;",
+   "        T = C; ll coef = d * pw(b, MOD - 2) % MOD;",
+   "        for (int j = m; j < n; j++) C[j] = ((C[j] - coef * B[j - m]) % MOD + MOD) % MOD;",
+   "        if (2 * L > i) continue;",
+   "        L = i + 1 - L; B = T; b = d; m = 0;",
+   "    }",
+   "    C.resize(L + 1); C.erase(C.begin());",
+   "    for (ll& x : C) x = (MOD - x) % MOD;",
+   "    return C;",
+   "}",
+   "// S[0..n-1] terminos iniciales, tr = coeficientes de la recurrencia; devuelve S[k]",
+   "ll linear_rec(const vll& S, const vll& tr, ll k) {",
+   "    int n = tr.size(); if (n == 0) return 0;",
+   "    auto combine = [&](const vll& a, const vll& b) {",
+   "        vll res(n * 2 + 1, 0);",
+   "        for (int i = 0; i <= n; i++) for (int j = 0; j <= n; j++) res[i + j] = (res[i + j] + a[i] * b[j]) % MOD;",
+   "        for (int i = 2 * n; i > n; --i) for (int j = 0; j < n; j++) res[i - 1 - j] = (res[i - 1 - j] + res[i] * tr[j]) % MOD;",
+   "        res.resize(n + 1); return res;",
+   "    };",
+   "    vll pol(n + 1, 0), e(n + 1, 0); pol[0] = e[1] = 1;",
+   "    for (++k; k; k /= 2) { if (k % 2) pol = combine(pol, e); e = combine(e, e); }",
+   "    ll res = 0;",
+   "    for (int i = 0; i < n; i++) res = (res + pol[i + 1] * S[i]) % MOD;",
+   "    return res;",
+   "}"
+  ],
+  "description": "[05_math] Berlekamp-Massey (recurrencia lineal minima) y k-esimo termino de una recurrencia (mod MOD primo) | O(n^2) BM, O(n^2 log k) k-esimo"
+ },
+ "comb": {
+  "prefix": [
+   "comb"
+  ],
+  "body": [
+   "struct Comb {",
+   "    vll f, inv_f;",
+   "    static ll pw(ll b, ll e) { ll r = 1; b %= MOD; for (; e > 0; e >>= 1, b = b * b % MOD) if (e & 1) r = r * b % MOD; return r; }",
+   "    Comb(int n = 0) {",
+   "        f.assign(n + 1, 1); for (int i = 1; i <= n; i++) f[i] = f[i - 1] * i % MOD;",
+   "        inv_f.assign(n + 1, 1); inv_f[n] = pw(f[n], MOD - 2);",
+   "        for (int i = n; i > 0; i--) inv_f[i - 1] = inv_f[i] * i % MOD;",
+   "    }",
+   "    ll C(int n, int k) { if (k < 0 || n < 0 || k > n) return 0; return f[n] * inv_f[k] % MOD * inv_f[n - k] % MOD; }",
+   "    ll P(int n, int k) { if (k < 0 || n < 0 || k > n) return 0; return f[n] * inv_f[n - k] % MOD; }",
+   "    ll inv(int x) { return inv_f[x] * f[x - 1] % MOD; }                  // x >= 1",
+   "    ll catalan(int n) { return C(2 * n, n) * inv(n + 1) % MOD; }",
+   "    ll stars_bars(int n, int k) { return C(n + k - 1, k - 1); }           // n objetos en k cajas (>= 0)",
+   "};"
+  ],
+  "description": "[05_math] Factoriales, nCr, nPr, catalan, inverso de i, estrellas y barras (mod MOD primo) | O(n) precomputo, O(1) consulta"
+ },
+ "crt": {
+  "prefix": [
+   "crt"
+  ],
+  "body": [
+   "ll crt_egcd(ll a, ll b, ll& x, ll& y) { if (!b) { x = 1; y = 0; return a; } ll x1, y1; ll g = crt_egcd(b, a % b, x1, y1); x = y1; y = x1 - y1 * (a / b); return g; }",
+   "// devuelve {x, lcm} con 0 <= x < lcm, o {-1, -1} si no hay solucion",
+   "pair<ll, ll> crt(ll a1, ll m1, ll a2, ll m2) {",
+   "    a1 = ((a1 % m1) + m1) % m1; a2 = ((a2 % m2) + m2) % m2;",
+   "    ll x, y, g = crt_egcd(m1, m2, x, y);",
+   "    if ((a2 - a1) % g) return {-1, -1};",
+   "    ll m2g = m2 / g, l = m1 / g * m2;",
+   "    __int128 k = (__int128)((((a2 - a1) / g) % m2g + m2g) % m2g) * (((x % m2g) + m2g) % m2g) % m2g;",
+   "    ll r = (ll)(((__int128)m1 * k + a1) % l); if (r < 0) r += l;",
+   "    return {r, l};",
+   "}"
+  ],
+  "description": "[05_math] Teorema chino del resto general (modulos no coprimos): x = a1 (m1), x = a2 (m2) | O(log)"
+ },
+ "discrete_log": {
+  "prefix": [
+   "discrete_log"
+  ],
+  "body": [
+   "ll discrete_log(ll a, ll b, ll m) {",
+   "    a %= m; b %= m; if (m == 1) return 0;",
+   "    ll k = 1 % m, add = 0, g;",
+   "    while ((g = __gcd(a, m)) > 1) {",
+   "        if (b == k) return add;",
+   "        if (b % g) return -1;",
+   "        b /= g; m /= g; add++;",
+   "        k = (__int128)k * (a / g) % m;",
+   "    }",
+   "    ll n = sqrtl((long double)m) + 1, an = 1 % m;",
+   "    for (ll i = 0; i < n; i++) an = (__int128)an * a % m;",
+   "    unordered_map<ll, ll> vals; ll cur = b;",
+   "    for (ll q = 0; q <= n; q++) { vals[cur] = q; cur = (__int128)cur * a % m; }",
+   "    cur = k;",
+   "    for (ll p = 1; p <= n; p++) {",
+   "        cur = (__int128)cur * an % m;",
+   "        auto it = vals.find(cur);",
+   "        if (it != vals.end()) return n * p - it->second + add;",
+   "    }",
+   "    return -1;",
+   "}"
+  ],
+  "description": "[05_math] Logaritmo discreto (BSGS extendido): menor x >= 0 con a^x = b (mod m), m cualquiera | O(sqrt m)"
+ },
+ "divisors_phi": {
+  "prefix": [
+   "divisors_phi"
+  ],
+  "body": [
+   "vector<ll> divisors(ll n) {",
+   "    vector<ll> d;",
+   "    for (ll i = 1; i * i <= n; i++) if (n % i == 0) { d.push_back(i); if (i != n / i) d.push_back(n / i); }",
+   "    sort(all(d)); return d;",
+   "}",
+   "ll euler_phi(ll n) {",
+   "    ll r = n;",
+   "    for (ll p = 2; p * p <= n; p++) if (n % p == 0) { while (n % p == 0) n /= p; r -= r / p; }",
+   "    if (n > 1) r -= r / n;",
+   "    return r;",
+   "}",
+   "vector<pll> factor_trial(ll n) {",
+   "    vector<pll> f;",
+   "    for (ll p = 2; p * p <= n; p++) if (n % p == 0) { int c = 0; while (n % p == 0) n /= p, c++; f.push_back({p, c}); }",
+   "    if (n > 1) f.push_back({n, 1});",
+   "    return f;",
+   "}"
+  ],
+  "description": "[05_math] Divisores de n, phi de Euler y numero/suma de divisores por factorizacion O(sqrt n) | O(sqrt n)"
+ },
+ "fft": {
+  "prefix": [
+   "fft"
+  ],
+  "body": [
+   "typedef complex<double> C;",
+   "void fft(vector<C>& a) {",
+   "    int n = a.size(), L = 31 - __builtin_clz(n);",
+   "    static vector<complex<long double>> R(2, 1);",
+   "    static vector<C> rt(2, 1);",
+   "    for (static int k = 2; k < n; k *= 2) {",
+   "        R.resize(n); rt.resize(n);",
+   "        auto x = polar(1.0L, acos(-1.0L) / k);",
+   "        for (int i = k; i < 2 * k; i++) rt[i] = R[i] = i & 1 ? R[i / 2] * x : R[i / 2];",
+   "    }",
+   "    vi rev(n);",
+   "    for (int i = 0; i < n; i++) rev[i] = (rev[i / 2] | (i & 1) << L) / 2;",
+   "    for (int i = 0; i < n; i++) if (i < rev[i]) swap(a[i], a[rev[i]]);",
+   "    for (int k = 1; k < n; k *= 2)",
+   "        for (int i = 0; i < n; i += 2 * k) for (int j = 0; j < k; j++) {",
+   "            C z = rt[j + k] * a[i + j + k];",
+   "            a[i + j + k] = a[i + j] - z; a[i + j] += z;",
+   "        }",
+   "}",
+   "vector<double> conv(const vector<double>& a, const vector<double>& b) {",
+   "    if (a.empty() || b.empty()) return {};",
+   "    vector<double> res(a.size() + b.size() - 1);",
+   "    int L = 32 - __builtin_clz(res.size()), n = 1 << L;",
+   "    vector<C> in(n), out(n);",
+   "    copy(all(a), begin(in));",
+   "    for (int i = 0; i < (int)b.size(); i++) in[i].imag(b[i]);",
+   "    fft(in);",
+   "    for (C& x : in) x *= x;",
+   "    for (int i = 0; i < n; i++) out[i] = in[-i & (n - 1)] - conj(in[i]);",
+   "    fft(out);",
+   "    for (int i = 0; i < (int)res.size(); i++) res[i] = imag(out[i]) / (4 * n);",
+   "    return res;",
+   "}",
+   "// convolucion modulo M (cualquiera, M <= ~1e9) con valores en [0, M)",
+   "template <int M> vll conv_mod(const vll& a, const vll& b) {",
+   "    if (a.empty() || b.empty()) return {};",
+   "    vll res(a.size() + b.size() - 1);",
+   "    int B = 32 - __builtin_clz(res.size()), n = 1 << B, cut = int(sqrt(M));",
+   "    vector<C> L(n), R(n), outs(n), outl(n);",
+   "    for (int i = 0; i < (int)a.size(); i++) L[i] = C((int)a[i] / cut, (int)a[i] % cut);",
+   "    for (int i = 0; i < (int)b.size(); i++) R[i] = C((int)b[i] / cut, (int)b[i] % cut);",
+   "    fft(L), fft(R);",
+   "    for (int i = 0; i < n; i++) {",
+   "        int j = -i & (n - 1);",
+   "        outl[j] = (L[i] + conj(L[j])) * R[i] / (2.0 * n);",
+   "        outs[j] = (L[i] - conj(L[j])) * R[i] / (2.0 * n) / C(0, 1);",
+   "    }",
+   "    fft(outl), fft(outs);",
+   "    for (int i = 0; i < (int)res.size(); i++) {",
+   "        ll av = ll(real(outl[i]) + .5), cv = ll(imag(outs[i]) + .5);",
+   "        ll bv = ll(imag(outl[i]) + .5) + ll(real(outs[i]) + .5);",
+   "        res[i] = ((av % M * cut + bv) % M * cut + cv) % M;",
+   "    }",
+   "    return res;",
+   "}"
+  ],
+  "description": "[05_math] FFT compleja (KACTL): convolucion de doubles y convolucion modulo M arbitrario | O(n log n)"
+ },
+ "floor_sum": {
+  "prefix": [
+   "floor_sum"
+  ],
+  "body": [
+   "ull floor_sum_unsigned(ull n, ull m, ull a, ull b) {",
+   "    ull ans = 0;",
+   "    while (true) {",
+   "        if (a >= m) { ans += n * (n - 1) / 2 * (a / m); a %= m; }",
+   "        if (b >= m) { ans += n * (b / m); b %= m; }",
+   "        ull y_max = a * n + b;",
+   "        if (y_max < m) break;",
+   "        n = (ull)(y_max / m); b = (ull)(y_max % m);",
+   "        swap(m, a);",
+   "    }",
+   "    return ans;",
+   "}",
+   "ll floor_sum(ll n, ll m, ll a, ll b) { // m > 0, n >= 0",
+   "    ull ans = 0;",
+   "    if (a < 0) { ll a2 = ((a % m) + m) % m; ans -= (ull)n * (n - 1) / 2 * (ull)((a2 - a) / m); a = a2; }",
+   "    if (b < 0) { ll b2 = ((b % m) + m) % m; ans -= (ull)n * (ull)((b2 - b) / m); b = b2; }",
+   "    return (ll)(ans + floor_sum_unsigned(n, m, a, b));",
+   "}"
+  ],
+  "description": "[05_math] floor_sum: sum_{i=0}^{n-1} floor((a*i + b) / m) (AtCoder Library) | O(log m)"
+ },
+ "fwht": {
+  "prefix": [
+   "fwht"
+  ],
+  "body": [
+   "void fwht(vll& a, int type, bool inv) { // type: 0 = xor, 1 = or, 2 = and",
+   "    int n = a.size();",
+   "    for (int len = 1; len < n; len <<= 1)",
+   "        for (int i = 0; i < n; i += 2 * len) for (int j = i; j < i + len; j++) {",
+   "            ll u = a[j], v = a[j + len];",
+   "            if (type == 0) { a[j] = u + v; a[j + len] = u - v; }",
+   "            else if (type == 1) { a[j + len] = inv ? v - u : v + u; }",
+   "            else { a[j] = inv ? u - v : u + v; }",
+   "        }",
+   "    if (type == 0 && inv) for (auto& x : a) x /= n;",
+   "}",
+   "vll bit_convolution(vll a, vll b, int type) { // tamanos potencia de 2 iguales",
+   "    fwht(a, type, false); fwht(b, type, false);",
+   "    for (int i = 0; i < (int)a.size(); i++) a[i] *= b[i];",
+   "    fwht(a, type, true); return a;",
+   "}"
+  ],
+  "description": "[05_math] Walsh-Hadamard: convolucion XOR / OR / AND de arreglos de tamano 2^k | O(n log n)"
+ },
+ "gauss_double": {
+  "prefix": [
+   "gauss_double"
+  ],
+  "body": [
+   "// a: n filas, m+1 columnas (la ultima es b). ans recibe una solucion",
+   "int gauss_double(vector<vector<double>> a, vector<double>& ans) {",
+   "    int n = a.size(), m = a[0].size() - 1; vi where(m, -1);",
+   "    for (int col = 0, row = 0; col < m && row < n; col++) {",
+   "        int sel = row;",
+   "        for (int i = row; i < n; i++) if (fabs(a[i][col]) > fabs(a[sel][col])) sel = i;",
+   "        if (fabs(a[sel][col]) < 1e-9) continue;",
+   "        swap(a[sel], a[row]); where[col] = row;",
+   "        for (int i = 0; i < n; i++) if (i != row) {",
+   "            double c = a[i][col] / a[row][col];",
+   "            for (int j = col; j <= m; j++) a[i][j] -= a[row][j] * c;",
+   "        }",
+   "        row++;",
+   "    }",
+   "    ans.assign(m, 0);",
+   "    for (int i = 0; i < m; i++) if (where[i] != -1) ans[i] = a[where[i]][m] / a[where[i]][i];",
+   "    for (int i = 0; i < n; i++) {",
+   "        double s = 0; for (int j = 0; j < m; j++) s += ans[j] * a[i][j];",
+   "        if (fabs(s - a[i][m]) > 1e-6) return 0;",
+   "    }",
+   "    for (int i = 0; i < m; i++) if (where[i] == -1) return 2;",
+   "    return 1;",
+   "}"
+  ],
+  "description": "[05_math] Eliminacion gaussiana con doubles: A x = b (sistema n x m). 0 = sin solucion, 1 = unica, 2 = infinitas | O(n m min(n,m))"
+ },
+ "gauss_mod": {
+  "prefix": [
+   "gauss_mod"
+  ],
+  "body": [
+   "// a: n filas, m+1 columnas (ultima = b), valores en [0, MOD)",
+   "int gauss_mod(vector<vll> a, vll& ans) {",
+   "    auto pw = [](ll b, ll e) { ll r = 1; b %= MOD; for (; e; e >>= 1, b = b * b % MOD) if (e & 1) r = r * b % MOD; return r; };",
+   "    int n = a.size(), m = a[0].size() - 1; vi where(m, -1);",
+   "    for (int col = 0, row = 0; col < m && row < n; col++) {",
+   "        int sel = -1; for (int i = row; i < n; i++) if (a[i][col]) { sel = i; break; }",
+   "        if (sel < 0) continue;",
+   "        swap(a[sel], a[row]); where[col] = row;",
+   "        ll iv = pw(a[row][col], MOD - 2);",
+   "        for (int j = col; j <= m; j++) a[row][j] = a[row][j] * iv % MOD;",
+   "        for (int i = 0; i < n; i++) if (i != row && a[i][col]) {",
+   "            ll c = a[i][col];",
+   "            for (int j = col; j <= m; j++) a[i][j] = ((a[i][j] - c * a[row][j]) % MOD + MOD) % MOD;",
+   "        }",
+   "        row++;",
+   "    }",
+   "    ans.assign(m, 0);",
+   "    for (int i = 0; i < m; i++) if (where[i] != -1) ans[i] = a[where[i]][m];",
+   "    for (int i = 0; i < n; i++) {",
+   "        ll s = 0; for (int j = 0; j < m; j++) s = (s + ans[j] * a[i][j]) % MOD;",
+   "        if (s != a[i][m]) return 0;",
+   "    }",
+   "    for (int i = 0; i < m; i++) if (where[i] == -1) return 2;",
+   "    return 1;",
+   "}",
+   "ll det_mod(vector<vll> a) { // matriz cuadrada, valores en [0, MOD)",
+   "    auto pw = [](ll b, ll e) { ll r = 1; b %= MOD; for (; e; e >>= 1, b = b * b % MOD) if (e & 1) r = r * b % MOD; return r; };",
+   "    int n = a.size(); ll det = 1;",
+   "    for (int i = 0; i < n; i++) {",
+   "        int p = -1; for (int j = i; j < n; j++) if (a[j][i]) { p = j; break; }",
+   "        if (p < 0) return 0;",
+   "        if (p != i) { swap(a[p], a[i]); det = (MOD - det) % MOD; }",
+   "        det = det * a[i][i] % MOD; ll iv = pw(a[i][i], MOD - 2);",
+   "        for (int j = i + 1; j < n; j++) {",
+   "            ll f = a[j][i] * iv % MOD; if (!f) continue;",
+   "            for (int k = i; k < n; k++) a[j][k] = ((a[j][k] - f * a[i][k]) % MOD + MOD) % MOD;",
+   "        }",
+   "    }",
+   "    return det;",
+   "}"
+  ],
+  "description": "[05_math] Gauss modulo primo MOD: resolver A x = b (0/1/2 soluciones) y determinante | O(n^3)"
+ },
+ "gauss_xor": {
+  "prefix": [
+   "gauss_xor"
+  ],
+  "body": [
+   "// a[i]: bits 0..m-1 coeficientes, bit m = rhs. Devuelve rango, o -1 si no hay solucion. ans = una solucion",
+   "template <int N> int gauss_xor(vector<bitset<N>> a, int m, bitset<N>& ans) {",
+   "    int n = a.size(), rk = 0; vi where(m, -1);",
+   "    for (int col = 0, row = 0; col < m && row < n; col++) {",
+   "        int sel = -1; for (int i = row; i < n; i++) if (a[i][col]) { sel = i; break; }",
+   "        if (sel < 0) continue;",
+   "        swap(a[sel], a[row]); where[col] = row;",
+   "        for (int i = 0; i < n; i++) if (i != row && a[i][col]) a[i] ^= a[row];",
+   "        row++; rk++;",
+   "    }",
+   "    ans.reset();",
+   "    for (int c = 0; c < m; c++) if (where[c] != -1) ans[c] = a[where[c]][m];",
+   "    bitset<N> mask; for (int j = 0; j < m; j++) mask[j] = 1;",
+   "    for (int i = 0; i < n; i++) if ((a[i] & mask).none() && a[i][m]) return -1;",
+   "    return rk;",
+   "}"
+  ],
+  "description": "[05_math] Gauss sobre GF(2) con bitset: sistema de ecuaciones XOR (bit m = termino independiente) | O(n m min(n,m) / 64)"
+ },
+ "integer_math": {
+  "prefix": [
+   "integer_math"
+  ],
+  "body": [
+   "ll isqrt(ll n) { ll r = sqrtl((long double)n); while (r * r > n) r--; while ((r + 1) * (r + 1) <= n) r++; return r; }",
+   "ll icbrt(ll n) { ll r = cbrtl((long double)n); while (r * r * r > n) r--; while ((r + 1) * (r + 1) * (r + 1) <= n) r++; return r; }",
+   "ll floor_div(ll a, ll b) { return a / b - ((a % b != 0) && ((a < 0) != (b < 0))); }",
+   "ll ceil_div(ll a, ll b) { return floor_div(a + b - 1, b) ; } // b > 0",
+   "ll lcm_safe(ll a, ll b) { return a / __gcd(a, b) * b; }",
+   "ll mul_mod(ll a, ll b, ll m) { return (ll)((__int128)a * b % m); }"
+  ],
+  "description": "[05_math] Utilidades enteras: isqrt, icbrt exactos, ceil_div, floor_div, gcd/lcm seguros, mulmod | O(1) / O(log)"
+ },
+ "lagrange": {
+  "prefix": [
+   "lagrange"
+  ],
+  "body": [
+   "ll lagrange_eval(const vll& y, ll x) { // y[i] = f(i), i = 0..n",
+   "    int n = y.size() - 1; x %= MOD; if (x < 0) x += MOD;",
+   "    if (x <= n) return y[x] % MOD;",
+   "    auto pw = [](ll b, ll e) { ll r = 1; b %= MOD; for (; e; e >>= 1, b = b * b % MOD) if (e & 1) r = r * b % MOD; return r; };",
+   "    vll pre(n + 2, 1), suf(n + 2, 1), fact(n + 1, 1);",
+   "    for (int i = 0; i <= n; i++) pre[i + 1] = pre[i] * ((x - i + MOD) % MOD) % MOD;",
+   "    for (int i = n; i >= 0; i--) suf[i] = suf[i + 1] * ((x - i + MOD) % MOD) % MOD;",
+   "    for (int i = 1; i <= n; i++) fact[i] = fact[i - 1] * i % MOD;",
+   "    ll res = 0;",
+   "    for (int i = 0; i <= n; i++) {",
+   "        ll num = pre[i] * suf[i + 1] % MOD;",
+   "        ll den = fact[i] * fact[n - i] % MOD;",
+   "        ll term = y[i] % MOD * num % MOD * pw(den, MOD - 2) % MOD;",
+   "        if ((n - i) & 1) term = (MOD - term) % MOD;",
+   "        res = (res + term) % MOD;",
+   "    }",
+   "    return res;",
+   "}"
+  ],
+  "description": "[05_math] Interpolacion de Lagrange en O(n): dado f(0..n) evalua f(x) mod MOD | O(n)"
+ },
+ "lucas": {
+  "prefix": [
+   "lucas"
+  ],
+  "body": [
+   "struct Lucas {",
+   "    ll p; vll f, inv_f;",
+   "    static ll pw(ll b, ll e, ll m) { ll r = 1; b %= m; for (; e > 0; e >>= 1, b = b * b % m) if (e & 1) r = r * b % m; return r; }",
+   "    Lucas(ll p) : p(p), f(p), inv_f(p) {",
+   "        f[0] = 1; for (ll i = 1; i < p; i++) f[i] = f[i - 1] * i % p;",
+   "        inv_f[p - 1] = pw(f[p - 1], p - 2, p); for (ll i = p - 1; i > 0; i--) inv_f[i - 1] = inv_f[i] * i % p;",
+   "    }",
+   "    ll small(ll n, ll k) { return k > n ? 0 : f[n] * inv_f[k] % p * inv_f[n - k] % p; }",
+   "    ll C(ll n, ll k) { ll r = 1; while (n || k) { r = r * small(n % p, k % p) % p; if (!r) return 0; n /= p; k /= p; } return r; }",
+   "};"
+  ],
+  "description": "[05_math] Teorema de Lucas: C(n, k) mod p con p primo pequeno (p ~ 1e6) y n, k grandes | O(p) precomputo, O(log_p n) consulta"
+ },
+ "matrix": {
+  "prefix": [
+   "matrix"
+  ],
+  "body": [
+   "struct Matrix {",
+   "    int n; vector<vll> a;",
+   "    Matrix(int n = 0, bool id = false) : n(n), a(n, vll(n, 0)) { if (id) for (int i = 0; i < n; i++) a[i][i] = 1; }",
+   "    Matrix operator*(const Matrix& o) const {",
+   "        Matrix r(n);",
+   "        for (int i = 0; i < n; i++) for (int k = 0; k < n; k++) if (a[i][k])",
+   "            for (int j = 0; j < n; j++) r.a[i][j] = (r.a[i][j] + a[i][k] * o.a[k][j]) % MOD;",
+   "        return r;",
+   "    }",
+   "    Matrix pow(ll e) const { Matrix r(n, true), b = *this; for (; e > 0; e >>= 1, b = b * b) if (e & 1) r = r * b; return r; }",
+   "};"
+  ],
+  "description": "[05_math] Matriz cuadrada modulo MOD con multiplicacion y exponenciacion (recurrencias lineales) | O(n^3 log e)"
+ },
+ "miller_rabin_pollard": {
+  "prefix": [
+   "miller_rabin_pollard"
+  ],
+  "body": [
+   "ull mulmod(ull a, ull b, ull m) { return (__uint128_t)a * b % m; }",
+   "ull powmod(ull a, ull e, ull m) { ull r = 1 % m; a %= m; for (; e; e >>= 1, a = mulmod(a, a, m)) if (e & 1) r = mulmod(r, a, m); return r; }",
+   "bool is_prime(ull n) {",
+   "    if (n < 2) return false;",
+   "    static const ull bases[] = {2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37};",
+   "    for (ull p : bases) { if (n % p == 0) return n == p; }",
+   "    ull d = n - 1; int s = 0; while (!(d & 1)) { d >>= 1; s++; }",
+   "    for (ull a : bases) {",
+   "        ull x = powmod(a, d, n);",
+   "        if (x == 1 || x == n - 1) continue;",
+   "        bool comp = true;",
+   "        for (int r = 1; r < s; r++) { x = mulmod(x, x, n); if (x == n - 1) { comp = false; break; } }",
+   "        if (comp) return false;",
+   "    }",
+   "    return true;",
+   "}",
+   "ull pollard_rho(ull n) {",
+   "    if (n % 2 == 0) return 2;",
+   "    if (n % 3 == 0) return 3;",
+   "    while (true) {",
+   "        ull x = rng() % n, c = rng() % (n - 1) + 1, y = x, d = 1;",
+   "        auto f = [&](ull v) { return (ull)(((__uint128_t)v * v + c) % n); };",
+   "        while (d == 1) { x = f(x); y = f(f(y)); d = __gcd(x > y ? x - y : y - x, n); }",
+   "        if (d != n) return d;",
+   "    }",
+   "}",
+   "void factor_rec(ull n, vector<ull>& r) {",
+   "    if (n == 1) return;",
+   "    if (is_prime(n)) { r.push_back(n); return; }",
+   "    ull d = pollard_rho(n); factor_rec(d, r); factor_rec(n / d, r);",
+   "}",
+   "vector<ull> factorize(ull n) { vector<ull> r; factor_rec(n, r); sort(all(r)); return r; } // primos con repeticion"
+  ],
+  "description": "[05_math] Miller-Rabin determinista (64 bits) y factorizacion Pollard-Rho | O(log n) por test, O(n^(1/4)) por factor"
+ },
+ "modint": {
+  "prefix": [
+   "modint"
+  ],
+  "body": [
+   "template <int M> struct Mint {",
+   "    int v = 0;",
+   "    Mint() {}",
+   "    Mint(ll x) { x %= M; if (x < 0) x += M; v = x; }",
+   "    Mint& operator+=(Mint o) { v += o.v; if (v >= M) v -= M; return *this; }",
+   "    Mint& operator-=(Mint o) { v -= o.v; if (v < 0) v += M; return *this; }",
+   "    Mint& operator*=(Mint o) { v = (ll)v * o.v % M; return *this; }",
+   "    Mint& operator/=(Mint o) { return *this *= o.inv(); }",
+   "    friend Mint operator+(Mint a, Mint b) { return a += b; }",
+   "    friend Mint operator-(Mint a, Mint b) { return a -= b; }",
+   "    friend Mint operator*(Mint a, Mint b) { return a *= b; }",
+   "    friend Mint operator/(Mint a, Mint b) { return a /= b; }",
+   "    Mint operator-() const { Mint r; r.v = v ? M - v : 0; return r; }",
+   "    Mint pow(ll e) const { Mint r(1), b = *this; for (; e > 0; e >>= 1, b *= b) if (e & 1) r *= b; return r; }",
+   "    Mint inv() const { return pow(M - 2); } // M primo",
+   "    bool operator==(Mint o) const { return v == o.v; }",
+   "    bool operator!=(Mint o) const { return v != o.v; }",
+   "    friend ostream& operator<<(ostream& o, Mint a) { return o << a.v; }",
+   "    friend istream& operator>>(istream& i, Mint& a) { ll x; i >> x; a = Mint(x); return i; }",
+   "};",
+   "using mint = Mint<MOD>;"
+  ],
+  "description": "[05_math] Struct Mint<M> con aritmetica modular (+ - * / pow inv), lectura y escritura | O(1) por operacion (inv O(log))"
+ },
+ "modpow_inverse": {
+  "prefix": [
+   "modpow_inverse"
+  ],
+  "body": [
+   "ll power(ll b, ll e, ll m = MOD) { ll r = 1 % m; b %= m; if (b < 0) b += m; for (; e > 0; e >>= 1, b = b * b % m) if (e & 1) r = r * b % m; return r; }",
+   "ll ext_gcd(ll a, ll b, ll& x, ll& y) { if (!b) { x = 1; y = 0; return a; } ll x1, y1; ll g = ext_gcd(b, a % b, x1, y1); x = y1; y = x1 - y1 * (a / b); return g; }",
+   "ll inv_mod(ll a, ll m) { ll x, y; ll g = ext_gcd(((a % m) + m) % m, m, x, y); if (g != 1) return -1; return (x % m + m) % m; } // m cualquiera, gcd(a,m)=1"
+  ],
+  "description": "[05_math] Potencia modular, inverso modular (Fermat y euclides extendido), gcd extendido | O(log)"
+ },
+ "ntt": {
+  "prefix": [
+   "ntt"
+  ],
+  "body": [
+   "namespace NTT {",
+   "const int P = 998244353, G = 3;",
+   "int pw(int b, int e) { ll r = 1, x = b; for (; e; e >>= 1, x = x * x % P) if (e & 1) r = r * x % P; return r; }",
+   "void ntt(vector<int>& a, bool inv) {",
+   "    int n = a.size();",
+   "    for (int i = 1, j = 0; i < n; i++) {",
+   "        int bit = n >> 1; for (; j & bit; bit >>= 1) j ^= bit; j ^= bit;",
+   "        if (i < j) swap(a[i], a[j]);",
+   "    }",
+   "    for (int len = 2; len <= n; len <<= 1) {",
+   "        int w = pw(G, (P - 1) / len); if (inv) w = pw(w, P - 2);",
+   "        vector<int> ws(len / 2); ws[0] = 1; for (int i = 1; i < len / 2; i++) ws[i] = (ll)ws[i - 1] * w % P;",
+   "        for (int i = 0; i < n; i += len) for (int j = 0; j < len / 2; j++) {",
+   "            int u = a[i + j], v = (ll)a[i + j + len / 2] * ws[j] % P;",
+   "            a[i + j] = u + v >= P ? u + v - P : u + v;",
+   "            a[i + j + len / 2] = u - v < 0 ? u - v + P : u - v;",
+   "        }",
+   "    }",
+   "    if (inv) { ll ni = pw(n, P - 2); for (int& x : a) x = x * ni % P; }",
+   "}",
+   "vector<int> multiply(vector<int> a, vector<int> b) { // coeficientes en [0, P)",
+   "    if (a.empty() || b.empty()) return {};",
+   "    int need = a.size() + b.size() - 1, n = 1; while (n < need) n <<= 1;",
+   "    a.resize(n); b.resize(n); ntt(a, false); ntt(b, false);",
+   "    for (int i = 0; i < n; i++) a[i] = (ll)a[i] * b[i] % P;",
+   "    ntt(a, true); a.resize(need); return a;",
+   "}",
+   "}"
+  ],
+  "description": "[05_math] NTT modulo 998244353: multiplicacion de polinomios | O(n log n)"
+ },
+ "primitive_root": {
+  "prefix": [
+   "primitive_root"
+  ],
+  "body": [
+   "ll primitive_root(ll p) {",
+   "    if (p == 2) return 1;",
+   "    auto pw = [&](ll b, ll e) { ll r = 1; b %= p; for (; e; e >>= 1, b = (__int128)b * b % p) if (e & 1) r = (__int128)r * b % p; return r; };",
+   "    vll fac; ll ph = p - 1, n = ph;",
+   "    for (ll i = 2; i * i <= n; i++) if (n % i == 0) { fac.push_back(i); while (n % i == 0) n /= i; }",
+   "    if (n > 1) fac.push_back(n);",
+   "    for (ll g = 2; g < p; g++) {",
+   "        bool ok = true;",
+   "        for (ll f : fac) if (pw(g, ph / f) == 1) { ok = false; break; }",
+   "        if (ok) return g;",
+   "    }",
+   "    return -1;",
+   "}"
+  ],
+  "description": "[05_math] Raiz primitiva modulo un primo p | O(sqrt p + log^2 p)"
+ },
+ "segmented_sieve": {
+  "prefix": [
+   "segmented_sieve"
+  ],
+  "body": [
+   "vector<ll> primes_in_range(ll L, ll R) {",
+   "    ll lim = sqrtl((long double)R) + 1; vector<bool> sm(lim + 1, true); vector<ll> ps;",
+   "    for (ll i = 2; i <= lim; i++) if (sm[i]) { ps.push_back(i); for (ll j = i * i; j <= lim; j += i) sm[j] = false; }",
+   "    vector<bool> isp(R - L + 1, true);",
+   "    for (ll p : ps) for (ll j = max(p * p, (L + p - 1) / p * p); j <= R; j += p) isp[j - L] = false;",
+   "    vector<ll> res;",
+   "    for (ll i = max(L, 2LL); i <= R; i++) if (isp[i - L]) res.push_back(i);",
+   "    return res;",
+   "}"
+  ],
+  "description": "[05_math] Criba segmentada: primos en [L, R] con R hasta ~1e12 y R-L ~ 1e7 | O((R-L) log log R + sqrt R)"
+ },
+ "sieve": {
+  "prefix": [
+   "sieve"
+  ],
+  "body": [
+   "struct Sieve {",
+   "    vi lp, primes, phi, mu;",
+   "    Sieve(int n = 1) : lp(n + 1, 0), phi(n + 1, 0), mu(n + 1, 0) {",
+   "        phi[1] = mu[1] = 1;",
+   "        for (int i = 2; i <= n; i++) {",
+   "            if (!lp[i]) { lp[i] = i; primes.push_back(i); phi[i] = i - 1; mu[i] = -1; }",
+   "            for (int p : primes) {",
+   "                if (p > lp[i] || (ll)i * p > n) break;",
+   "                lp[i * p] = p;",
+   "                phi[i * p] = (p == lp[i]) ? phi[i] * p : phi[i] * (p - 1);",
+   "                mu[i * p] = (p == lp[i]) ? 0 : -mu[i];",
+   "            }",
+   "        }",
+   "    }",
+   "    bool is_prime(int x) { return x >= 2 && lp[x] == x; }",
+   "    vector<pii> factor(int x) { vector<pii> r; while (x > 1) { int p = lp[x], c = 0; while (x % p == 0) x /= p, c++; r.push_back({p, c}); } return r; }",
+   "};"
+  ],
+  "description": "[05_math] Criba lineal: menor factor primo, primos, phi de Euler, Mobius, factorizacion rapida | O(n)"
+ },
+ "sqrt_mod": {
+  "prefix": [
+   "sqrt_mod"
+  ],
+  "body": [
+   "ll sqrt_mod(ll a, ll p) {",
+   "    a %= p; if (a < 0) a += p;",
+   "    if (a == 0) return 0;",
+   "    if (p == 2) return a;",
+   "    auto mul = [&](ll x, ll y) { return (ll)((__int128)x * y % p); };",
+   "    auto pw = [&](ll b, ll e) { ll r = 1; for (; e; e >>= 1, b = mul(b, b)) if (e & 1) r = mul(r, b); return r; };",
+   "    if (pw(a, (p - 1) / 2) != 1) return -1;",
+   "    if (p % 4 == 3) return pw(a, (p + 1) / 4);",
+   "    ll q = p - 1; int s = 0; while (q % 2 == 0) { q /= 2; s++; }",
+   "    ll z = 2; while (pw(z, (p - 1) / 2) != p - 1) z++;",
+   "    ll c = pw(z, q), x = pw(a, (q + 1) / 2), t = pw(a, q); int m = s;",
+   "    while (t != 1) {",
+   "        int i = 0; ll tt = t; while (tt != 1) { tt = mul(tt, tt); i++; }",
+   "        ll b = c; for (int j = 0; j < m - i - 1; j++) b = mul(b, b);",
+   "        x = mul(x, b); c = mul(b, b); t = mul(t, c); m = i;",
+   "    }",
+   "    return x;",
+   "}"
+  ],
+  "description": "[05_math] Raiz cuadrada modular (Tonelli-Shanks): x^2 = a (mod p), p primo; -1 si no existe | O(log^2 p)"
+ },
+ "angle_sort": {
+  "prefix": [
+   "angle_sort"
+  ],
+  "body": [
+   "template <class T> struct Pt {",
+   "    T x, y;",
+   "    Pt(T x = 0, T y = 0) : x(x), y(y) {}",
+   "    bool operator<(const Pt& p) const { return tie(x, y) < tie(p.x, p.y); }",
+   "    bool operator==(const Pt& p) const { return tie(x, y) == tie(p.x, p.y); }",
+   "    Pt operator+(const Pt& p) const { return {x + p.x, y + p.y}; }",
+   "    Pt operator-(const Pt& p) const { return {x - p.x, y - p.y}; }",
+   "    Pt operator*(T d) const { return {x * d, y * d}; }",
+   "    Pt operator/(T d) const { return {x / d, y / d}; }",
+   "    T dot(const Pt& p) const { return x * p.x + y * p.y; }",
+   "    T cross(const Pt& p) const { return x * p.y - y * p.x; }",
+   "    T cross(const Pt& a, const Pt& b) const { return (a - *this).cross(b - *this); } // (a-this) x (b-this)",
+   "    T dist2() const { return x * x + y * y; }",
+   "    double dist() const { return sqrt((double)dist2()); }",
+   "    double angle() const { return atan2((double)y, (double)x); }",
+   "    Pt perp() const { return {-y, x}; }",
+   "    Pt rotate(double a) const { return {(T)(x * cos(a) - y * sin(a)), (T)(x * sin(a) + y * cos(a))}; }",
+   "    friend istream& operator>>(istream& i, Pt& p) { return i >> p.x >> p.y; }",
+   "    friend ostream& operator<<(ostream& o, const Pt& p) { return o << \"(\" << p.x << \",\" << p.y << \")\"; }",
+   "};",
+   "using P = Pt<ll>;               // cambiar a Pt<ld> para geometria con reales",
+   "using coord_t = decltype(P().x);",
+   "template <class T> int sgn(T x) { return (x > EPS) - (x < -EPS); }",
+   "",
+   "int half_of(P p) { return p.y < 0 || (p.y == 0 && p.x < 0); } // 0: angulo en [0, pi), 1: [pi, 2pi)",
+   "bool angle_cmp(const P& a, const P& b) {",
+   "    if (half_of(a) != half_of(b)) return half_of(a) < half_of(b);",
+   "    return a.cross(b) > 0;",
+   "}",
+   "// sort(v.begin(), v.end(), angle_cmp);"
+  ],
+  "description": "[06_geometry] Orden polar exacto por angulo (enteros) alrededor del origen, mitad inferior primero | O(n log n)"
+ },
+ "angle_sort_nd": {
+  "prefix": [
+   "angle_sort_nd"
+  ],
+  "body": [
+   "int half_of(P p) { return p.y < 0 || (p.y == 0 && p.x < 0); } // 0: angulo en [0, pi), 1: [pi, 2pi)",
+   "bool angle_cmp(const P& a, const P& b) {",
+   "    if (half_of(a) != half_of(b)) return half_of(a) < half_of(b);",
+   "    return a.cross(b) > 0;",
+   "}",
+   "// sort(v.begin(), v.end(), angle_cmp);"
+  ],
+  "description": "[06_geometry] Orden polar exacto por angulo (enteros) alrededor del origen, mitad inferior primero | O(n log n)"
+ },
+ "circles": {
+  "prefix": [
+   "circles"
+  ],
+  "body": [
+   "template <class T> struct Pt {",
+   "    T x, y;",
+   "    Pt(T x = 0, T y = 0) : x(x), y(y) {}",
+   "    bool operator<(const Pt& p) const { return tie(x, y) < tie(p.x, p.y); }",
+   "    bool operator==(const Pt& p) const { return tie(x, y) == tie(p.x, p.y); }",
+   "    Pt operator+(const Pt& p) const { return {x + p.x, y + p.y}; }",
+   "    Pt operator-(const Pt& p) const { return {x - p.x, y - p.y}; }",
+   "    Pt operator*(T d) const { return {x * d, y * d}; }",
+   "    Pt operator/(T d) const { return {x / d, y / d}; }",
+   "    T dot(const Pt& p) const { return x * p.x + y * p.y; }",
+   "    T cross(const Pt& p) const { return x * p.y - y * p.x; }",
+   "    T cross(const Pt& a, const Pt& b) const { return (a - *this).cross(b - *this); } // (a-this) x (b-this)",
+   "    T dist2() const { return x * x + y * y; }",
+   "    double dist() const { return sqrt((double)dist2()); }",
+   "    double angle() const { return atan2((double)y, (double)x); }",
+   "    Pt perp() const { return {-y, x}; }",
+   "    Pt rotate(double a) const { return {(T)(x * cos(a) - y * sin(a)), (T)(x * sin(a) + y * cos(a))}; }",
+   "    friend istream& operator>>(istream& i, Pt& p) { return i >> p.x >> p.y; }",
+   "    friend ostream& operator<<(ostream& o, const Pt& p) { return o << \"(\" << p.x << \",\" << p.y << \")\"; }",
+   "};",
+   "using P = Pt<ll>;               // cambiar a Pt<ld> para geometria con reales",
+   "using coord_t = decltype(P().x);",
+   "template <class T> int sgn(T x) { return (x > EPS) - (x < -EPS); }",
+   "",
+   "using PD = Pt<ld>;",
+   "bool circle_inter(PD a, PD b, ld r1, ld r2, pair<PD, PD>* out) { // false si no se cortan",
+   "    if (a == b) return false;",
+   "    PD vec = b - a; ld d2 = vec.dist2(), sum = r1 + r2, dif = r1 - r2;",
+   "    ld p = (d2 + r1 * r1 - r2 * r2) / (d2 * 2), h2 = r1 * r1 - p * p * d2;",
+   "    if (sum * sum < d2 || dif * dif > d2) return false;",
+   "    PD mid = a + vec * p, per = vec.perp() * sqrtl(max((ld)0, h2) / d2);",
+   "    *out = {mid + per, mid - per};",
+   "    return true;",
+   "}",
+   "vector<PD> circle_line_inter(PD c, ld r, PD a, PD b) { // puntos de la recta ab con el circulo",
+   "    PD d = b - a, f = a - c;",
+   "    ld A = d.dot(d), B = 2 * f.dot(d), Cc = f.dot(f) - r * r, disc = B * B - 4 * A * Cc;",
+   "    if (disc < -EPS) return {};",
+   "    disc = sqrtl(max((ld)0, disc));",
+   "    vector<PD> res = {a + d * ((-B - disc) / (2 * A))};",
+   "    if (disc > EPS) res.push_back(a + d * ((-B + disc) / (2 * A)));",
+   "    return res;",
+   "}",
+   "PD circum_center(PD A, PD B, PD C) { PD b = C - A, c = B - A; return A + (b * c.dist2() - c * b.dist2()).perp() / b.cross(c) / 2; }",
+   "ld circum_radius(PD A, PD B, PD C) { return (ld)((B - A).dist() * (C - B).dist() * (A - C).dist()) / fabsl((B - A).cross(C - A)) / 2; }"
+  ],
+  "description": "[06_geometry] Circulos: interseccion circulo-circulo, circulo-recta, circuncentro y circunradio | O(1)"
+ },
+ "circles_nd": {
+  "prefix": [
+   "circles_nd"
+  ],
+  "body": [
+   "using PD = Pt<ld>;",
+   "bool circle_inter(PD a, PD b, ld r1, ld r2, pair<PD, PD>* out) { // false si no se cortan",
+   "    if (a == b) return false;",
+   "    PD vec = b - a; ld d2 = vec.dist2(), sum = r1 + r2, dif = r1 - r2;",
+   "    ld p = (d2 + r1 * r1 - r2 * r2) / (d2 * 2), h2 = r1 * r1 - p * p * d2;",
+   "    if (sum * sum < d2 || dif * dif > d2) return false;",
+   "    PD mid = a + vec * p, per = vec.perp() * sqrtl(max((ld)0, h2) / d2);",
+   "    *out = {mid + per, mid - per};",
+   "    return true;",
+   "}",
+   "vector<PD> circle_line_inter(PD c, ld r, PD a, PD b) { // puntos de la recta ab con el circulo",
+   "    PD d = b - a, f = a - c;",
+   "    ld A = d.dot(d), B = 2 * f.dot(d), Cc = f.dot(f) - r * r, disc = B * B - 4 * A * Cc;",
+   "    if (disc < -EPS) return {};",
+   "    disc = sqrtl(max((ld)0, disc));",
+   "    vector<PD> res = {a + d * ((-B - disc) / (2 * A))};",
+   "    if (disc > EPS) res.push_back(a + d * ((-B + disc) / (2 * A)));",
+   "    return res;",
+   "}",
+   "PD circum_center(PD A, PD B, PD C) { PD b = C - A, c = B - A; return A + (b * c.dist2() - c * b.dist2()).perp() / b.cross(c) / 2; }",
+   "ld circum_radius(PD A, PD B, PD C) { return (ld)((B - A).dist() * (C - B).dist() * (A - C).dist()) / fabsl((B - A).cross(C - A)) / 2; }"
+  ],
+  "description": "[06_geometry] Circulos: interseccion circulo-circulo, circulo-recta, circuncentro y circunradio | O(1)"
+ },
+ "closest_pair": {
+  "prefix": [
+   "closest_pair"
+  ],
+  "body": [
+   "template <class T> struct Pt {",
+   "    T x, y;",
+   "    Pt(T x = 0, T y = 0) : x(x), y(y) {}",
+   "    bool operator<(const Pt& p) const { return tie(x, y) < tie(p.x, p.y); }",
+   "    bool operator==(const Pt& p) const { return tie(x, y) == tie(p.x, p.y); }",
+   "    Pt operator+(const Pt& p) const { return {x + p.x, y + p.y}; }",
+   "    Pt operator-(const Pt& p) const { return {x - p.x, y - p.y}; }",
+   "    Pt operator*(T d) const { return {x * d, y * d}; }",
+   "    Pt operator/(T d) const { return {x / d, y / d}; }",
+   "    T dot(const Pt& p) const { return x * p.x + y * p.y; }",
+   "    T cross(const Pt& p) const { return x * p.y - y * p.x; }",
+   "    T cross(const Pt& a, const Pt& b) const { return (a - *this).cross(b - *this); } // (a-this) x (b-this)",
+   "    T dist2() const { return x * x + y * y; }",
+   "    double dist() const { return sqrt((double)dist2()); }",
+   "    double angle() const { return atan2((double)y, (double)x); }",
+   "    Pt perp() const { return {-y, x}; }",
+   "    Pt rotate(double a) const { return {(T)(x * cos(a) - y * sin(a)), (T)(x * sin(a) + y * cos(a))}; }",
+   "    friend istream& operator>>(istream& i, Pt& p) { return i >> p.x >> p.y; }",
+   "    friend ostream& operator<<(ostream& o, const Pt& p) { return o << \"(\" << p.x << \",\" << p.y << \")\"; }",
+   "};",
+   "using P = Pt<ll>;               // cambiar a Pt<ld> para geometria con reales",
+   "using coord_t = decltype(P().x);",
+   "template <class T> int sgn(T x) { return (x > EPS) - (x < -EPS); }",
+   "",
+   "pair<P, P> closest_pair(vector<P> v) {",
+   "    set<P> S;",
+   "    sort(all(v), [](P a, P b) { return a.y < b.y; });",
+   "    pair<ll, pair<P, P>> ret{LLONG_MAX, {P(), P()}};",
+   "    int j = 0;",
+   "    for (P p : v) {",
+   "        P d{1 + (ll)sqrt((double)ret.first), 0};",
+   "        while (v[j].y <= p.y - d.x) S.erase(v[j++]);",
+   "        auto lo = S.lower_bound(p - d), hi = S.upper_bound(p + d);",
+   "        for (; lo != hi; ++lo) ret = min(ret, {(*lo - p).dist2(), {*lo, p}});",
+   "        S.insert(p);",
+   "    }",
+   "    return ret.second;",
+   "}"
+  ],
+  "description": "[06_geometry] Par de puntos mas cercano (barrido con set), coordenadas enteras | O(n log n)"
+ },
+ "closest_pair_nd": {
+  "prefix": [
+   "closest_pair_nd"
+  ],
+  "body": [
+   "pair<P, P> closest_pair(vector<P> v) {",
+   "    set<P> S;",
+   "    sort(all(v), [](P a, P b) { return a.y < b.y; });",
+   "    pair<ll, pair<P, P>> ret{LLONG_MAX, {P(), P()}};",
+   "    int j = 0;",
+   "    for (P p : v) {",
+   "        P d{1 + (ll)sqrt((double)ret.first), 0};",
+   "        while (v[j].y <= p.y - d.x) S.erase(v[j++]);",
+   "        auto lo = S.lower_bound(p - d), hi = S.upper_bound(p + d);",
+   "        for (; lo != hi; ++lo) ret = min(ret, {(*lo - p).dist2(), {*lo, p}});",
+   "        S.insert(p);",
+   "    }",
+   "    return ret.second;",
+   "}"
+  ],
+  "description": "[06_geometry] Par de puntos mas cercano (barrido con set), coordenadas enteras | O(n log n)"
+ },
+ "convex_hull": {
+  "prefix": [
+   "convex_hull"
+  ],
+  "body": [
+   "template <class T> struct Pt {",
+   "    T x, y;",
+   "    Pt(T x = 0, T y = 0) : x(x), y(y) {}",
+   "    bool operator<(const Pt& p) const { return tie(x, y) < tie(p.x, p.y); }",
+   "    bool operator==(const Pt& p) const { return tie(x, y) == tie(p.x, p.y); }",
+   "    Pt operator+(const Pt& p) const { return {x + p.x, y + p.y}; }",
+   "    Pt operator-(const Pt& p) const { return {x - p.x, y - p.y}; }",
+   "    Pt operator*(T d) const { return {x * d, y * d}; }",
+   "    Pt operator/(T d) const { return {x / d, y / d}; }",
+   "    T dot(const Pt& p) const { return x * p.x + y * p.y; }",
+   "    T cross(const Pt& p) const { return x * p.y - y * p.x; }",
+   "    T cross(const Pt& a, const Pt& b) const { return (a - *this).cross(b - *this); } // (a-this) x (b-this)",
+   "    T dist2() const { return x * x + y * y; }",
+   "    double dist() const { return sqrt((double)dist2()); }",
+   "    double angle() const { return atan2((double)y, (double)x); }",
+   "    Pt perp() const { return {-y, x}; }",
+   "    Pt rotate(double a) const { return {(T)(x * cos(a) - y * sin(a)), (T)(x * sin(a) + y * cos(a))}; }",
+   "    friend istream& operator>>(istream& i, Pt& p) { return i >> p.x >> p.y; }",
+   "    friend ostream& operator<<(ostream& o, const Pt& p) { return o << \"(\" << p.x << \",\" << p.y << \")\"; }",
+   "};",
+   "using P = Pt<ll>;               // cambiar a Pt<ld> para geometria con reales",
+   "using coord_t = decltype(P().x);",
+   "template <class T> int sgn(T x) { return (x > EPS) - (x < -EPS); }",
+   "",
+   "vector<P> convex_hull(vector<P> pts) {",
+   "    if (pts.size() <= 1) return pts;",
+   "    sort(all(pts));",
+   "    vector<P> h(pts.size() + 1); int s = 0, t = 0;",
+   "    for (int it = 2; it--; s = --t, reverse(all(pts)))",
+   "        for (P p : pts) {",
+   "            while (t >= s + 2 && h[t - 2].cross(h[t - 1], p) <= 0) t--;",
+   "            h[t++] = p;",
+   "        }",
+   "    return {h.begin(), h.begin() + t - (t == 2 && h[0] == h[1])};",
+   "}"
+  ],
+  "description": "[06_geometry] Envolvente convexa (Andrew / monotone chain), sentido antihorario, sin puntos colineales | O(n log n)"
+ },
+ "convex_hull_nd": {
+  "prefix": [
+   "convex_hull_nd"
+  ],
+  "body": [
+   "vector<P> convex_hull(vector<P> pts) {",
+   "    if (pts.size() <= 1) return pts;",
+   "    sort(all(pts));",
+   "    vector<P> h(pts.size() + 1); int s = 0, t = 0;",
+   "    for (int it = 2; it--; s = --t, reverse(all(pts)))",
+   "        for (P p : pts) {",
+   "            while (t >= s + 2 && h[t - 2].cross(h[t - 1], p) <= 0) t--;",
+   "            h[t++] = p;",
+   "        }",
+   "    return {h.begin(), h.begin() + t - (t == 2 && h[0] == h[1])};",
+   "}"
+  ],
+  "description": "[06_geometry] Envolvente convexa (Andrew / monotone chain), sentido antihorario, sin puntos colineales | O(n log n)"
+ },
+ "half_plane": {
+  "prefix": [
+   "half_plane"
+  ],
+  "body": [
+   "template <class T> struct Pt {",
+   "    T x, y;",
+   "    Pt(T x = 0, T y = 0) : x(x), y(y) {}",
+   "    bool operator<(const Pt& p) const { return tie(x, y) < tie(p.x, p.y); }",
+   "    bool operator==(const Pt& p) const { return tie(x, y) == tie(p.x, p.y); }",
+   "    Pt operator+(const Pt& p) const { return {x + p.x, y + p.y}; }",
+   "    Pt operator-(const Pt& p) const { return {x - p.x, y - p.y}; }",
+   "    Pt operator*(T d) const { return {x * d, y * d}; }",
+   "    Pt operator/(T d) const { return {x / d, y / d}; }",
+   "    T dot(const Pt& p) const { return x * p.x + y * p.y; }",
+   "    T cross(const Pt& p) const { return x * p.y - y * p.x; }",
+   "    T cross(const Pt& a, const Pt& b) const { return (a - *this).cross(b - *this); } // (a-this) x (b-this)",
+   "    T dist2() const { return x * x + y * y; }",
+   "    double dist() const { return sqrt((double)dist2()); }",
+   "    double angle() const { return atan2((double)y, (double)x); }",
+   "    Pt perp() const { return {-y, x}; }",
+   "    Pt rotate(double a) const { return {(T)(x * cos(a) - y * sin(a)), (T)(x * sin(a) + y * cos(a))}; }",
+   "    friend istream& operator>>(istream& i, Pt& p) { return i >> p.x >> p.y; }",
+   "    friend ostream& operator<<(ostream& o, const Pt& p) { return o << \"(\" << p.x << \",\" << p.y << \")\"; }",
+   "};",
+   "using P = Pt<ll>;               // cambiar a Pt<ld> para geometria con reales",
+   "using coord_t = decltype(P().x);",
+   "template <class T> int sgn(T x) { return (x > EPS) - (x < -EPS); }",
+   "",
+   "using PD = Pt<ld>;",
+   "struct HLine { // semiplano a la izquierda de p -> p + d",
+   "    PD p, d;",
+   "    bool left(PD q) const { return d.cross(q - p) > EPS; }",
+   "    ld ang() const { return atan2l(d.y, d.x); }",
+   "};",
+   "PD hl_inter(const HLine& a, const HLine& b) { PD u = a.p - b.p; ld t = b.d.cross(u) / a.d.cross(b.d); return a.p + a.d * t; }",
+   "vector<PD> half_plane_inter(vector<HLine> L) { // poligono resultante (vacio si no hay area)",
+   "    sort(all(L), [](const HLine& a, const HLine& b) { return a.ang() < b.ang(); });",
+   "    int n = L.size(), fi_ = 0, la = 0; vector<HLine> q(n); vector<PD> p(n);",
+   "    q[0] = L[0];",
+   "    for (int i = 1; i < n; i++) {",
+   "        while (fi_ < la && !L[i].left(p[la - 1])) la--;",
+   "        while (fi_ < la && !L[i].left(p[fi_])) fi_++;",
+   "        q[++la] = L[i];",
+   "        if (fabsl(q[la].d.cross(q[la - 1].d)) < EPS) {",
+   "            la--;",
+   "            if (q[la].left(L[i].p)) q[la] = L[i];",
+   "        }",
+   "        if (fi_ < la) p[la - 1] = hl_inter(q[la - 1], q[la]);",
+   "    }",
+   "    while (fi_ < la && !q[fi_].left(p[la - 1])) la--;",
+   "    if (la - fi_ <= 1) return {};",
+   "    p[la] = hl_inter(q[la], q[fi_]);",
+   "    return vector<PD>(p.begin() + fi_, p.begin() + la + 1);",
+   "}"
+  ],
+  "description": "[06_geometry] Interseccion de semiplanos (ordenar por angulo + deque); agregar caja grande si puede ser no acotada | O(n log n)"
+ },
+ "half_plane_nd": {
+  "prefix": [
+   "half_plane_nd"
+  ],
+  "body": [
+   "using PD = Pt<ld>;",
+   "struct HLine { // semiplano a la izquierda de p -> p + d",
+   "    PD p, d;",
+   "    bool left(PD q) const { return d.cross(q - p) > EPS; }",
+   "    ld ang() const { return atan2l(d.y, d.x); }",
+   "};",
+   "PD hl_inter(const HLine& a, const HLine& b) { PD u = a.p - b.p; ld t = b.d.cross(u) / a.d.cross(b.d); return a.p + a.d * t; }",
+   "vector<PD> half_plane_inter(vector<HLine> L) { // poligono resultante (vacio si no hay area)",
+   "    sort(all(L), [](const HLine& a, const HLine& b) { return a.ang() < b.ang(); });",
+   "    int n = L.size(), fi_ = 0, la = 0; vector<HLine> q(n); vector<PD> p(n);",
+   "    q[0] = L[0];",
+   "    for (int i = 1; i < n; i++) {",
+   "        while (fi_ < la && !L[i].left(p[la - 1])) la--;",
+   "        while (fi_ < la && !L[i].left(p[fi_])) fi_++;",
+   "        q[++la] = L[i];",
+   "        if (fabsl(q[la].d.cross(q[la - 1].d)) < EPS) {",
+   "            la--;",
+   "            if (q[la].left(L[i].p)) q[la] = L[i];",
+   "        }",
+   "        if (fi_ < la) p[la - 1] = hl_inter(q[la - 1], q[la]);",
+   "    }",
+   "    while (fi_ < la && !q[fi_].left(p[la - 1])) la--;",
+   "    if (la - fi_ <= 1) return {};",
+   "    p[la] = hl_inter(q[la], q[fi_]);",
+   "    return vector<PD>(p.begin() + fi_, p.begin() + la + 1);",
+   "}"
+  ],
+  "description": "[06_geometry] Interseccion de semiplanos (ordenar por angulo + deque); agregar caja grande si puede ser no acotada | O(n log n)"
+ },
+ "lines_segments": {
+  "prefix": [
+   "lines_segments"
+  ],
+  "body": [
+   "template <class T> struct Pt {",
+   "    T x, y;",
+   "    Pt(T x = 0, T y = 0) : x(x), y(y) {}",
+   "    bool operator<(const Pt& p) const { return tie(x, y) < tie(p.x, p.y); }",
+   "    bool operator==(const Pt& p) const { return tie(x, y) == tie(p.x, p.y); }",
+   "    Pt operator+(const Pt& p) const { return {x + p.x, y + p.y}; }",
+   "    Pt operator-(const Pt& p) const { return {x - p.x, y - p.y}; }",
+   "    Pt operator*(T d) const { return {x * d, y * d}; }",
+   "    Pt operator/(T d) const { return {x / d, y / d}; }",
+   "    T dot(const Pt& p) const { return x * p.x + y * p.y; }",
+   "    T cross(const Pt& p) const { return x * p.y - y * p.x; }",
+   "    T cross(const Pt& a, const Pt& b) const { return (a - *this).cross(b - *this); } // (a-this) x (b-this)",
+   "    T dist2() const { return x * x + y * y; }",
+   "    double dist() const { return sqrt((double)dist2()); }",
+   "    double angle() const { return atan2((double)y, (double)x); }",
+   "    Pt perp() const { return {-y, x}; }",
+   "    Pt rotate(double a) const { return {(T)(x * cos(a) - y * sin(a)), (T)(x * sin(a) + y * cos(a))}; }",
+   "    friend istream& operator>>(istream& i, Pt& p) { return i >> p.x >> p.y; }",
+   "    friend ostream& operator<<(ostream& o, const Pt& p) { return o << \"(\" << p.x << \",\" << p.y << \")\"; }",
+   "};",
+   "using P = Pt<ll>;               // cambiar a Pt<ld> para geometria con reales",
+   "using coord_t = decltype(P().x);",
+   "template <class T> int sgn(T x) { return (x > EPS) - (x < -EPS); }",
+   "",
+   "// {1, p}: un punto, {0, -}: paralelas distintas, {-1, -}: la misma recta (requiere P con reales para punto exacto)",
+   "pair<int, P> line_inter(P s1, P e1, P s2, P e2) {",
+   "    auto d = (e1 - s1).cross(e2 - s2);",
+   "    if (sgn(d) == 0) return {-(sgn(s1.cross(e1, s2)) == 0), P(0, 0)};",
+   "    auto p = s2.cross(e1, e2), q = s2.cross(e2, s1);",
+   "    return {1, (s1 * p + e1 * q) / d};",
+   "}",
+   "vector<P> seg_inter(P a, P b, P c, P d) { // 0, 1 o 2 puntos (segmentos colineales solapados)",
+   "    auto oa = c.cross(d, a), ob = c.cross(d, b), oc = a.cross(b, c), od = a.cross(b, d);",
+   "    if (sgn(oa) * sgn(ob) < 0 && sgn(oc) * sgn(od) < 0) return {(a * ob - b * oa) / (ob - oa)};",
+   "    set<P> s;",
+   "    auto on = [&](P s0, P e0, P p) { return sgn(p.cross(s0, e0)) == 0 && sgn((s0 - p).dot(e0 - p)) <= 0; };",
+   "    if (on(c, d, a)) s.insert(a);",
+   "    if (on(c, d, b)) s.insert(b);",
+   "    if (on(a, b, c)) s.insert(c);",
+   "    if (on(a, b, d)) s.insert(d);",
+   "    return {s.begin(), s.end()};",
+   "}",
+   "double seg_dist(P s, P e, P p) {",
+   "    if (s == e) return (p - s).dist();",
+   "    double d = (double)(e - s).dist2(), t = min(d, max(0.0, (double)(p - s).dot(e - s)));",
+   "    double cx = (double)(p.x - s.x) * d - (double)(e.x - s.x) * t, cy = (double)(p.y - s.y) * d - (double)(e.y - s.y) * t;",
+   "    return hypot(cx, cy) / d;",
+   "}",
+   "double line_dist(P a, P b, P p) { return fabs((double)a.cross(b, p)) / (b - a).dist(); }"
+  ],
+  "description": "[06_geometry] Interseccion de rectas y segmentos, distancia punto-segmento / punto-recta | O(1)"
+ },
+ "lines_segments_nd": {
+  "prefix": [
+   "lines_segments_nd"
+  ],
+  "body": [
+   "// {1, p}: un punto, {0, -}: paralelas distintas, {-1, -}: la misma recta (requiere P con reales para punto exacto)",
+   "pair<int, P> line_inter(P s1, P e1, P s2, P e2) {",
+   "    auto d = (e1 - s1).cross(e2 - s2);",
+   "    if (sgn(d) == 0) return {-(sgn(s1.cross(e1, s2)) == 0), P(0, 0)};",
+   "    auto p = s2.cross(e1, e2), q = s2.cross(e2, s1);",
+   "    return {1, (s1 * p + e1 * q) / d};",
+   "}",
+   "vector<P> seg_inter(P a, P b, P c, P d) { // 0, 1 o 2 puntos (segmentos colineales solapados)",
+   "    auto oa = c.cross(d, a), ob = c.cross(d, b), oc = a.cross(b, c), od = a.cross(b, d);",
+   "    if (sgn(oa) * sgn(ob) < 0 && sgn(oc) * sgn(od) < 0) return {(a * ob - b * oa) / (ob - oa)};",
+   "    set<P> s;",
+   "    auto on = [&](P s0, P e0, P p) { return sgn(p.cross(s0, e0)) == 0 && sgn((s0 - p).dot(e0 - p)) <= 0; };",
+   "    if (on(c, d, a)) s.insert(a);",
+   "    if (on(c, d, b)) s.insert(b);",
+   "    if (on(a, b, c)) s.insert(c);",
+   "    if (on(a, b, d)) s.insert(d);",
+   "    return {s.begin(), s.end()};",
+   "}",
+   "double seg_dist(P s, P e, P p) {",
+   "    if (s == e) return (p - s).dist();",
+   "    double d = (double)(e - s).dist2(), t = min(d, max(0.0, (double)(p - s).dot(e - s)));",
+   "    double cx = (double)(p.x - s.x) * d - (double)(e.x - s.x) * t, cy = (double)(p.y - s.y) * d - (double)(e.y - s.y) * t;",
+   "    return hypot(cx, cy) / d;",
+   "}",
+   "double line_dist(P a, P b, P p) { return fabs((double)a.cross(b, p)) / (b - a).dist(); }"
+  ],
+  "description": "[06_geometry] Interseccion de rectas y segmentos, distancia punto-segmento / punto-recta | O(1)"
+ },
+ "min_enclosing_circle": {
+  "prefix": [
+   "min_enclosing_circle"
+  ],
+  "body": [
+   "template <class T> struct Pt {",
+   "    T x, y;",
+   "    Pt(T x = 0, T y = 0) : x(x), y(y) {}",
+   "    bool operator<(const Pt& p) const { return tie(x, y) < tie(p.x, p.y); }",
+   "    bool operator==(const Pt& p) const { return tie(x, y) == tie(p.x, p.y); }",
+   "    Pt operator+(const Pt& p) const { return {x + p.x, y + p.y}; }",
+   "    Pt operator-(const Pt& p) const { return {x - p.x, y - p.y}; }",
+   "    Pt operator*(T d) const { return {x * d, y * d}; }",
+   "    Pt operator/(T d) const { return {x / d, y / d}; }",
+   "    T dot(const Pt& p) const { return x * p.x + y * p.y; }",
+   "    T cross(const Pt& p) const { return x * p.y - y * p.x; }",
+   "    T cross(const Pt& a, const Pt& b) const { return (a - *this).cross(b - *this); } // (a-this) x (b-this)",
+   "    T dist2() const { return x * x + y * y; }",
+   "    double dist() const { return sqrt((double)dist2()); }",
+   "    double angle() const { return atan2((double)y, (double)x); }",
+   "    Pt perp() const { return {-y, x}; }",
+   "    Pt rotate(double a) const { return {(T)(x * cos(a) - y * sin(a)), (T)(x * sin(a) + y * cos(a))}; }",
+   "    friend istream& operator>>(istream& i, Pt& p) { return i >> p.x >> p.y; }",
+   "    friend ostream& operator<<(ostream& o, const Pt& p) { return o << \"(\" << p.x << \",\" << p.y << \")\"; }",
+   "};",
+   "using P = Pt<ll>;               // cambiar a Pt<ld> para geometria con reales",
+   "using coord_t = decltype(P().x);",
+   "template <class T> int sgn(T x) { return (x > EPS) - (x < -EPS); }",
+   "",
+   "using PD = Pt<ld>;",
+   "pair<PD, ld> min_enclosing_circle(vector<PD> ps) {",
+   "    shuffle(all(ps), rng);",
+   "    auto cc = [](PD A, PD B, PD C) { PD b = C - A, c = B - A; return A + (b * c.dist2() - c * b.dist2()).perp() / b.cross(c) / 2; };",
+   "    PD o = ps[0]; ld r = 0, K = 1 + 1e-8;",
+   "    for (int i = 0; i < (int)ps.size(); i++) if ((o - ps[i]).dist() > r * K) {",
+   "        o = ps[i]; r = 0;",
+   "        for (int j = 0; j < i; j++) if ((o - ps[j]).dist() > r * K) {",
+   "            o = (ps[i] + ps[j]) / 2; r = (o - ps[i]).dist();",
+   "            for (int k = 0; k < j; k++) if ((o - ps[k]).dist() > r * K) { o = cc(ps[i], ps[j], ps[k]); r = (o - ps[i]).dist(); }",
+   "        }",
+   "    }",
+   "    return {o, r};",
+   "}"
+  ],
+  "description": "[06_geometry] Circulo minimo que encierra todos los puntos (Welzl iterativo aleatorizado) | O(n) esperado"
+ },
+ "min_enclosing_circle_nd": {
+  "prefix": [
+   "min_enclosing_circle_nd"
+  ],
+  "body": [
+   "using PD = Pt<ld>;",
+   "pair<PD, ld> min_enclosing_circle(vector<PD> ps) {",
+   "    shuffle(all(ps), rng);",
+   "    auto cc = [](PD A, PD B, PD C) { PD b = C - A, c = B - A; return A + (b * c.dist2() - c * b.dist2()).perp() / b.cross(c) / 2; };",
+   "    PD o = ps[0]; ld r = 0, K = 1 + 1e-8;",
+   "    for (int i = 0; i < (int)ps.size(); i++) if ((o - ps[i]).dist() > r * K) {",
+   "        o = ps[i]; r = 0;",
+   "        for (int j = 0; j < i; j++) if ((o - ps[j]).dist() > r * K) {",
+   "            o = (ps[i] + ps[j]) / 2; r = (o - ps[i]).dist();",
+   "            for (int k = 0; k < j; k++) if ((o - ps[k]).dist() > r * K) { o = cc(ps[i], ps[j], ps[k]); r = (o - ps[i]).dist(); }",
+   "        }",
+   "    }",
+   "    return {o, r};",
+   "}"
+  ],
+  "description": "[06_geometry] Circulo minimo que encierra todos los puntos (Welzl iterativo aleatorizado) | O(n) esperado"
+ },
+ "point": {
+  "prefix": [
+   "point"
+  ],
+  "body": [
+   "template <class T> struct Pt {",
+   "    T x, y;",
+   "    Pt(T x = 0, T y = 0) : x(x), y(y) {}",
+   "    bool operator<(const Pt& p) const { return tie(x, y) < tie(p.x, p.y); }",
+   "    bool operator==(const Pt& p) const { return tie(x, y) == tie(p.x, p.y); }",
+   "    Pt operator+(const Pt& p) const { return {x + p.x, y + p.y}; }",
+   "    Pt operator-(const Pt& p) const { return {x - p.x, y - p.y}; }",
+   "    Pt operator*(T d) const { return {x * d, y * d}; }",
+   "    Pt operator/(T d) const { return {x / d, y / d}; }",
+   "    T dot(const Pt& p) const { return x * p.x + y * p.y; }",
+   "    T cross(const Pt& p) const { return x * p.y - y * p.x; }",
+   "    T cross(const Pt& a, const Pt& b) const { return (a - *this).cross(b - *this); } // (a-this) x (b-this)",
+   "    T dist2() const { return x * x + y * y; }",
+   "    double dist() const { return sqrt((double)dist2()); }",
+   "    double angle() const { return atan2((double)y, (double)x); }",
+   "    Pt perp() const { return {-y, x}; }",
+   "    Pt rotate(double a) const { return {(T)(x * cos(a) - y * sin(a)), (T)(x * sin(a) + y * cos(a))}; }",
+   "    friend istream& operator>>(istream& i, Pt& p) { return i >> p.x >> p.y; }",
+   "    friend ostream& operator<<(ostream& o, const Pt& p) { return o << \"(\" << p.x << \",\" << p.y << \")\"; }",
+   "};",
+   "using P = Pt<ll>;               // cambiar a Pt<ld> para geometria con reales",
+   "using coord_t = decltype(P().x);",
+   "template <class T> int sgn(T x) { return (x > EPS) - (x < -EPS); }"
+  ],
+  "description": "[06_geometry] Punto 2D generico Pt<T> (ll o ld) con producto punto/cruz, rotacion, sgn; P = tipo por defecto | O(1)"
+ },
+ "polygon": {
+  "prefix": [
+   "polygon"
+  ],
+  "body": [
+   "template <class T> struct Pt {",
+   "    T x, y;",
+   "    Pt(T x = 0, T y = 0) : x(x), y(y) {}",
+   "    bool operator<(const Pt& p) const { return tie(x, y) < tie(p.x, p.y); }",
+   "    bool operator==(const Pt& p) const { return tie(x, y) == tie(p.x, p.y); }",
+   "    Pt operator+(const Pt& p) const { return {x + p.x, y + p.y}; }",
+   "    Pt operator-(const Pt& p) const { return {x - p.x, y - p.y}; }",
+   "    Pt operator*(T d) const { return {x * d, y * d}; }",
+   "    Pt operator/(T d) const { return {x / d, y / d}; }",
+   "    T dot(const Pt& p) const { return x * p.x + y * p.y; }",
+   "    T cross(const Pt& p) const { return x * p.y - y * p.x; }",
+   "    T cross(const Pt& a, const Pt& b) const { return (a - *this).cross(b - *this); } // (a-this) x (b-this)",
+   "    T dist2() const { return x * x + y * y; }",
+   "    double dist() const { return sqrt((double)dist2()); }",
+   "    double angle() const { return atan2((double)y, (double)x); }",
+   "    Pt perp() const { return {-y, x}; }",
+   "    Pt rotate(double a) const { return {(T)(x * cos(a) - y * sin(a)), (T)(x * sin(a) + y * cos(a))}; }",
+   "    friend istream& operator>>(istream& i, Pt& p) { return i >> p.x >> p.y; }",
+   "    friend ostream& operator<<(ostream& o, const Pt& p) { return o << \"(\" << p.x << \",\" << p.y << \")\"; }",
+   "};",
+   "using P = Pt<ll>;               // cambiar a Pt<ld> para geometria con reales",
+   "using coord_t = decltype(P().x);",
+   "template <class T> int sgn(T x) { return (x > EPS) - (x < -EPS); }",
+   "",
+   "coord_t polygon_area2(const vector<P>& v) { // 2 * area, positivo si es CCW",
+   "    coord_t a = v.back().cross(v[0]);",
+   "    for (int i = 0; i + 1 < (int)v.size(); i++) a += v[i].cross(v[i + 1]);",
+   "    return a;",
+   "}",
+   "Pt<ld> polygon_centroid(const vector<P>& v) {",
+   "    Pt<ld> res(0, 0); ld A = 0;",
+   "    for (int i = 0, n = v.size(); i < n; i++) {",
+   "        P a = v[i], b = v[(i + 1) % n]; ld c = (ld)a.cross(b);",
+   "        res.x += (ld)(a.x + b.x) * c; res.y += (ld)(a.y + b.y) * c; A += c;",
+   "    }",
+   "    return {res.x / (3 * A), res.y / (3 * A)};",
+   "}",
+   "bool on_segment(P s, P e, P p) { return sgn(p.cross(s, e)) == 0 && sgn((s - p).dot(e - p)) <= 0; }",
+   "int in_polygon(const vector<P>& p, P a) { // 0 = fuera, 1 = en el borde, 2 = dentro",
+   "    int cnt = 0, n = p.size();",
+   "    for (int i = 0; i < n; i++) {",
+   "        P q = p[(i + 1) % n];",
+   "        if (on_segment(p[i], q, a)) return 1;",
+   "        cnt ^= ((a.y < p[i].y) - (a.y < q.y)) * a.cross(p[i], q) > 0;",
+   "    }",
+   "    return cnt ? 2 : 0;",
+   "}",
+   "bool in_convex(const vector<P>& p, P q) { // poligono convexo CCW sin colineales, borde inclusive",
+   "    int n = p.size();",
+   "    if (n < 3) return false;",
+   "    if (sgn(p[0].cross(p[1], q)) < 0 || sgn(p[0].cross(p[n - 1], q)) > 0) return false;",
+   "    int l = 1, r = n - 1;",
+   "    while (r - l > 1) { int m = (l + r) / 2; if (sgn(p[0].cross(p[m], q)) >= 0) l = m; else r = m; }",
+   "    return sgn(p[l].cross(p[l + 1], q)) >= 0;",
+   "}"
+  ],
+  "description": "[06_geometry] Poligono: area*2 con signo, centroide, punto dentro (0 fuera/1 borde/2 dentro), punto en convexo O(log n) | O(n) / O(log n)"
+ },
+ "polygon_nd": {
+  "prefix": [
+   "polygon_nd"
+  ],
+  "body": [
+   "coord_t polygon_area2(const vector<P>& v) { // 2 * area, positivo si es CCW",
+   "    coord_t a = v.back().cross(v[0]);",
+   "    for (int i = 0; i + 1 < (int)v.size(); i++) a += v[i].cross(v[i + 1]);",
+   "    return a;",
+   "}",
+   "Pt<ld> polygon_centroid(const vector<P>& v) {",
+   "    Pt<ld> res(0, 0); ld A = 0;",
+   "    for (int i = 0, n = v.size(); i < n; i++) {",
+   "        P a = v[i], b = v[(i + 1) % n]; ld c = (ld)a.cross(b);",
+   "        res.x += (ld)(a.x + b.x) * c; res.y += (ld)(a.y + b.y) * c; A += c;",
+   "    }",
+   "    return {res.x / (3 * A), res.y / (3 * A)};",
+   "}",
+   "bool on_segment(P s, P e, P p) { return sgn(p.cross(s, e)) == 0 && sgn((s - p).dot(e - p)) <= 0; }",
+   "int in_polygon(const vector<P>& p, P a) { // 0 = fuera, 1 = en el borde, 2 = dentro",
+   "    int cnt = 0, n = p.size();",
+   "    for (int i = 0; i < n; i++) {",
+   "        P q = p[(i + 1) % n];",
+   "        if (on_segment(p[i], q, a)) return 1;",
+   "        cnt ^= ((a.y < p[i].y) - (a.y < q.y)) * a.cross(p[i], q) > 0;",
+   "    }",
+   "    return cnt ? 2 : 0;",
+   "}",
+   "bool in_convex(const vector<P>& p, P q) { // poligono convexo CCW sin colineales, borde inclusive",
+   "    int n = p.size();",
+   "    if (n < 3) return false;",
+   "    if (sgn(p[0].cross(p[1], q)) < 0 || sgn(p[0].cross(p[n - 1], q)) > 0) return false;",
+   "    int l = 1, r = n - 1;",
+   "    while (r - l > 1) { int m = (l + r) / 2; if (sgn(p[0].cross(p[m], q)) >= 0) l = m; else r = m; }",
+   "    return sgn(p[l].cross(p[l + 1], q)) >= 0;",
+   "}"
+  ],
+  "description": "[06_geometry] Poligono: area*2 con signo, centroide, punto dentro (0 fuera/1 borde/2 dentro), punto en convexo O(log n) | O(n) / O(log n)"
+ },
+ "rect_union_area": {
+  "prefix": [
+   "rect_union_area"
+  ],
+  "body": [
+   "ll rect_union_area(const vector<array<ll, 4>>& r) { // {x1, y1, x2, y2} con x1 < x2, y1 < y2",
+   "    if (r.empty()) return 0;",
+   "    vll ys; for (auto& a : r) { ys.push_back(a[1]); ys.push_back(a[3]); }",
+   "    sort(all(ys)); ys.erase(unique(all(ys)), ys.end());",
+   "    int m = ys.size() - 1;",
+   "    vector<array<ll, 4>> ev;",
+   "    for (auto& a : r) { ev.push_back({a[0], 1, a[1], a[3]}); ev.push_back({a[2], -1, a[1], a[3]}); }",
+   "    sort(all(ev));",
+   "    vi cnt(4 * m + 4, 0); vll len(4 * m + 4, 0);",
+   "    function<void(int, int, int, int, int, int)> upd = [&](int x, int l, int rr, int ql, int qr, int v) {",
+   "        if (qr <= l || rr <= ql) return;",
+   "        if (ql <= l && rr <= qr) cnt[x] += v;",
+   "        else { int mid = (l + rr) / 2; upd(2 * x, l, mid, ql, qr, v); upd(2 * x + 1, mid, rr, ql, qr, v); }",
+   "        if (cnt[x] > 0) len[x] = ys[rr] - ys[l];",
+   "        else len[x] = (rr - l == 1) ? 0 : len[2 * x] + len[2 * x + 1];",
+   "    };",
+   "    ll area = 0;",
+   "    for (size_t i = 0; i < ev.size(); i++) {",
+   "        if (i) area += len[1] * (ev[i][0] - ev[i - 1][0]);",
+   "        int l = lower_bound(all(ys), ev[i][2]) - ys.begin(), rr = lower_bound(all(ys), ev[i][3]) - ys.begin();",
+   "        upd(1, 0, m, l, rr, (int)ev[i][1]);",
+   "    }",
+   "    return area;",
+   "}"
+  ],
+  "description": "[06_geometry] Area de la union de rectangulos (barrido + segment tree de cobertura) | O(n log n)"
+ },
+ "rotating_calipers": {
+  "prefix": [
+   "rotating_calipers"
+  ],
+  "body": [
+   "template <class T> struct Pt {",
+   "    T x, y;",
+   "    Pt(T x = 0, T y = 0) : x(x), y(y) {}",
+   "    bool operator<(const Pt& p) const { return tie(x, y) < tie(p.x, p.y); }",
+   "    bool operator==(const Pt& p) const { return tie(x, y) == tie(p.x, p.y); }",
+   "    Pt operator+(const Pt& p) const { return {x + p.x, y + p.y}; }",
+   "    Pt operator-(const Pt& p) const { return {x - p.x, y - p.y}; }",
+   "    Pt operator*(T d) const { return {x * d, y * d}; }",
+   "    Pt operator/(T d) const { return {x / d, y / d}; }",
+   "    T dot(const Pt& p) const { return x * p.x + y * p.y; }",
+   "    T cross(const Pt& p) const { return x * p.y - y * p.x; }",
+   "    T cross(const Pt& a, const Pt& b) const { return (a - *this).cross(b - *this); } // (a-this) x (b-this)",
+   "    T dist2() const { return x * x + y * y; }",
+   "    double dist() const { return sqrt((double)dist2()); }",
+   "    double angle() const { return atan2((double)y, (double)x); }",
+   "    Pt perp() const { return {-y, x}; }",
+   "    Pt rotate(double a) const { return {(T)(x * cos(a) - y * sin(a)), (T)(x * sin(a) + y * cos(a))}; }",
+   "    friend istream& operator>>(istream& i, Pt& p) { return i >> p.x >> p.y; }",
+   "    friend ostream& operator<<(ostream& o, const Pt& p) { return o << \"(\" << p.x << \",\" << p.y << \")\"; }",
+   "};",
+   "using P = Pt<ll>;               // cambiar a Pt<ld> para geometria con reales",
+   "using coord_t = decltype(P().x);",
+   "template <class T> int sgn(T x) { return (x > EPS) - (x < -EPS); }",
+   "",
+   "array<P, 2> hull_diameter(vector<P> S) { // S = envolvente convexa CCW (ll)",
+   "    int n = S.size(), j = n < 2 ? 0 : 1;",
+   "    pair<ll, array<P, 2>> res({0, {S[0], S[0]}});",
+   "    for (int i = 0; i < j; i++)",
+   "        for (;; j = (j + 1) % n) {",
+   "            res = max(res, {(ll)(S[i] - S[j]).dist2(), {S[i], S[j]}});",
+   "            if ((S[(j + 1) % n] - S[j]).cross(S[i + 1] - S[i]) >= 0) break;",
+   "        }",
+   "    return res.second;",
+   "}",
+   "void reorder_poly(vector<P>& p) { rotate(p.begin(), min_element(all(p), [](const P& a, const P& b) { return make_pair(a.y, a.x) < make_pair(b.y, b.x); }), p.end()); }",
+   "vector<P> minkowski(vector<P> a, vector<P> b) { // ambos convexos CCW",
+   "    reorder_poly(a); reorder_poly(b);",
+   "    a.push_back(a[0]); a.push_back(a[1]); b.push_back(b[0]); b.push_back(b[1]);",
+   "    vector<P> res; size_t i = 0, j = 0;",
+   "    while (i < a.size() - 2 || j < b.size() - 2) {",
+   "        res.push_back(a[i] + b[j]);",
+   "        auto c = sgn((a[i + 1] - a[i]).cross(b[j + 1] - b[j]));",
+   "        if (c >= 0 && i < a.size() - 2) ++i;",
+   "        if (c <= 0 && j < b.size() - 2) ++j;",
+   "    }",
+   "    return res;",
+   "}"
+  ],
+  "description": "[06_geometry] Diametro de poligono convexo (rotating calipers) y suma de Minkowski de dos poligonos convexos | O(n) / O(n + m)"
+ },
+ "rotating_calipers_nd": {
+  "prefix": [
+   "rotating_calipers_nd"
+  ],
+  "body": [
+   "array<P, 2> hull_diameter(vector<P> S) { // S = envolvente convexa CCW (ll)",
+   "    int n = S.size(), j = n < 2 ? 0 : 1;",
+   "    pair<ll, array<P, 2>> res({0, {S[0], S[0]}});",
+   "    for (int i = 0; i < j; i++)",
+   "        for (;; j = (j + 1) % n) {",
+   "            res = max(res, {(ll)(S[i] - S[j]).dist2(), {S[i], S[j]}});",
+   "            if ((S[(j + 1) % n] - S[j]).cross(S[i + 1] - S[i]) >= 0) break;",
+   "        }",
+   "    return res.second;",
+   "}",
+   "void reorder_poly(vector<P>& p) { rotate(p.begin(), min_element(all(p), [](const P& a, const P& b) { return make_pair(a.y, a.x) < make_pair(b.y, b.x); }), p.end()); }",
+   "vector<P> minkowski(vector<P> a, vector<P> b) { // ambos convexos CCW",
+   "    reorder_poly(a); reorder_poly(b);",
+   "    a.push_back(a[0]); a.push_back(a[1]); b.push_back(b[0]); b.push_back(b[1]);",
+   "    vector<P> res; size_t i = 0, j = 0;",
+   "    while (i < a.size() - 2 || j < b.size() - 2) {",
+   "        res.push_back(a[i] + b[j]);",
+   "        auto c = sgn((a[i + 1] - a[i]).cross(b[j + 1] - b[j]));",
+   "        if (c >= 0 && i < a.size() - 2) ++i;",
+   "        if (c <= 0 && j < b.size() - 2) ++j;",
+   "    }",
+   "    return res;",
+   "}"
+  ],
+  "description": "[06_geometry] Diametro de poligono convexo (rotating calipers) y suma de Minkowski de dos poligonos convexos | O(n) / O(n + m)"
+ },
+ "bitmask_tsp": {
+  "prefix": [
+   "bitmask_tsp"
+  ],
+  "body": [
+   "ll tsp(const vector<vll>& d) { // d[i][j] = costo; devuelve costo del mejor ciclo que parte de 0",
+   "    int n = d.size(); vector<vll> dp(1 << n, vll(n, INF)); dp[1][0] = 0;",
+   "    for (int m = 1; m < (1 << n); m++) for (int u = 0; u < n; u++) if (dp[m][u] < INF && (m >> u & 1))",
+   "        for (int v = 0; v < n; v++) if (!(m >> v & 1) && d[u][v] < INF)",
+   "            dp[m | 1 << v][v] = min(dp[m | 1 << v][v], dp[m][u] + d[u][v]);",
+   "    ll best = INF;",
+   "    for (int u = 1; u < n; u++) if (dp[(1 << n) - 1][u] < INF && d[u][0] < INF) best = min(best, dp[(1 << n) - 1][u] + d[u][0]);",
+   "    return n == 1 ? 0 : best;",
+   "}",
+   "ll count_hamiltonian_paths(const vector<vi>& adj) { // adj[u][v] = 1 si hay arista u->v",
+   "    int n = adj.size(); vector<vll> dp(1 << n, vll(n, 0));",
+   "    for (int i = 0; i < n; i++) dp[1 << i][i] = 1;",
+   "    for (int m = 1; m < (1 << n); m++) for (int u = 0; u < n; u++) if (dp[m][u])",
+   "        for (int v = 0; v < n; v++) if (adj[u][v] && !(m >> v & 1)) dp[m | 1 << v][v] += dp[m][u];",
+   "    ll tot = 0; for (int u = 0; u < n; u++) tot += dp[(1 << n) - 1][u];",
+   "    return tot;",
+   "}"
+  ],
+  "description": "[07_dp] TSP con DP sobre mascaras (ciclo hamiltoniano de costo minimo) y conteo de caminos hamiltonianos | O(2^n n^2)"
+ },
+ "dc_optimization": {
+  "prefix": [
+   "dc_optimization"
+  ],
+  "body": [
+   "// Definir cost(j, i): costo de un grupo (j, i]. Requiere opt[i] <= opt[i+1]",
+   "ll cost(int j, int i);  // <-- IMPLEMENTAR",
+   "vll dp_prev, dp_cur;",
+   "void dc_compute(int l, int r, int optl, int optr) {",
+   "    if (l > r) return;",
+   "    int mid = (l + r) / 2; pair<ll, int> best = {INF, -1};",
+   "    for (int j = optl; j <= min(mid - 1, optr); j++) {",
+   "        ll v = dp_prev[j] + cost(j, mid);",
+   "        if (v < best.first) best = {v, j};",
+   "    }",
+   "    dp_cur[mid] = best.first;",
+   "    dc_compute(l, mid - 1, optl, best.second); dc_compute(mid + 1, r, best.second, optr);",
+   "}",
+   "// uso: dp_prev[0]=0, resto INF; for k in 1..K: dp_cur.assign(n+1, INF); dc_compute(1, n, 0, n-1); swap(dp_prev, dp_cur);"
+  ],
+  "description": "[07_dp] DP con optimizacion Divide & Conquer: dp[k][i] = min_j dp[k-1][j] + cost(j, i)  (opt monotono) | O(K n log n)"
+ },
+ "digit_dp": {
+  "prefix": [
+   "digit_dp"
+  ],
+  "body": [
+   "// Cambiar el estado/transicion segun el problema. Cuenta numeros en [0, N] con suma de digitos S.",
+   "ll digit_count(ll N, int S) {",
+   "    string s = to_string(N); int n = s.size();",
+   "    // memo[pos][suma] solo para estados libres (tight = false); lead = ceros a la izquierda no importan aqui",
+   "    vector<vll> memo(n + 1, vll(S + 1, -1));",
+   "    function<ll(int, int, bool)> go = [&](int pos, int sum, bool tight) -> ll {",
+   "        if (sum > S) return 0;",
+   "        if (pos == n) return sum == S;",
+   "        if (!tight && memo[pos][sum] != -1) return memo[pos][sum];",
+   "        int lim = tight ? s[pos] - '0' : 9; ll res = 0;",
+   "        for (int d = 0; d <= lim; d++) res += go(pos + 1, sum + d, tight && d == lim);",
+   "        if (!tight) memo[pos][sum] = res;",
+   "        return res;",
+   "    };",
+   "    return go(0, 0, true);",
+   "}"
+  ],
+  "description": "[07_dp] Plantilla de digit DP: contar x en [0, N] con una propiedad (ejemplo: suma de digitos == S) | O(digitos * estado * 10)"
+ },
+ "kadane": {
+  "prefix": [
+   "kadane"
+  ],
+  "body": [
+   "tuple<ll, int, int> kadane(const vll& a) { // (suma, l, r) subarreglo no vacio",
+   "    ll best = a[0], cur = 0; int bl = 0, br = 0, l = 0;",
+   "    for (int i = 0; i < (int)a.size(); i++) {",
+   "        if (cur <= 0) { cur = 0; l = i; }",
+   "        cur += a[i];",
+   "        if (cur > best) { best = cur; bl = l; br = i; }",
+   "    }",
+   "    return {best, bl, br};",
+   "}",
+   "ll max_circular_subarray(const vll& a) {",
+   "    ll tot = accumulate(all(a), 0LL), mx = get<0>(kadane(a));",
+   "    vll b(a); for (auto& x : b) x = -x;",
+   "    ll mn = -get<0>(kadane(b));",
+   "    return (tot == mn) ? mx : max(mx, tot - mn);",
+   "}"
+  ],
+  "description": "[07_dp] Subarreglo de suma maxima (Kadane) con indices, y version circular | O(n)"
+ },
+ "knapsack": {
+  "prefix": [
+   "knapsack"
+  ],
+  "body": [
+   "ll knap01(const vi& w, const vll& v, int W) {",
+   "    vll dp(W + 1, 0);",
+   "    for (int i = 0; i < (int)w.size(); i++) for (int c = W; c >= w[i]; c--) dp[c] = max(dp[c], dp[c - w[i]] + v[i]);",
+   "    return dp[W];",
+   "}",
+   "ll knap_unbounded(const vi& w, const vll& v, int W) {",
+   "    vll dp(W + 1, 0);",
+   "    for (int i = 0; i < (int)w.size(); i++) for (int c = w[i]; c <= W; c++) dp[c] = max(dp[c], dp[c - w[i]] + v[i]);",
+   "    return dp[W];",
+   "}",
+   "ll knap_bounded(const vi& w, const vll& v, const vi& cnt, int W) { // cnt[i] copias del item i",
+   "    vll dp(W + 1, 0);",
+   "    for (int i = 0; i < (int)w.size(); i++) {",
+   "        int k = cnt[i];",
+   "        for (int p = 1; k > 0; p <<= 1) {",
+   "            int t = min(p, k); k -= t; ll ww = (ll)w[i] * t, vv = v[i] * t;",
+   "            for (ll c = W; c >= ww; c--) dp[c] = max(dp[c], dp[c - ww] + vv);",
+   "        }",
+   "    }",
+   "    return dp[W];",
+   "}",
+   "template <int N> bitset<N> subset_sums(const vi& a) { bitset<N> b; b[0] = 1; for (int x : a) b |= b << x; return b; } // N > suma total"
+  ],
+  "description": "[07_dp] Mochila 0/1, ilimitada, acotada (division binaria) y subset-sum con bitset | O(n W) / O(n W / 64)"
+ },
+ "knuth_opt": {
+  "prefix": [
+   "knuth_opt"
+  ],
+  "body": [
+   "// Requiere w cuadrangular y monotono. a = pesos; ejemplo con w(l, r) = suma de a[l..r] (fusion optima de piedras)",
+   "ll knuth_merge(const vll& a) {",
+   "    int n = a.size(); vll pre(n + 1, 0); for (int i = 0; i < n; i++) pre[i + 1] = pre[i] + a[i];",
+   "    vector<vll> dp(n, vll(n, 0)); vector<vi> opt(n, vi(n, 0));",
+   "    for (int i = 0; i < n; i++) opt[i][i] = i;",
+   "    for (int len = 2; len <= n; len++)",
+   "        for (int l = 0; l + len - 1 < n; l++) {",
+   "            int r = l + len - 1; dp[l][r] = INF;",
+   "            for (int k = opt[l][r - 1]; k <= min(r - 1, opt[l + 1][r]); k++) {",
+   "                ll v = dp[l][k] + dp[k + 1][r] + pre[r + 1] - pre[l];",
+   "                if (v < dp[l][r]) { dp[l][r] = v; opt[l][r] = k; }",
+   "            }",
+   "        }",
+   "    return dp[0][n - 1];",
+   "}"
+  ],
+  "description": "[07_dp] Optimizacion de Knuth para DP de intervalos: dp[l][r] = min_k dp[l][k] + dp[k+1][r] + w(l, r) | O(n^2)"
+ },
+ "lcs_edit": {
+  "prefix": [
+   "lcs_edit"
+  ],
+  "body": [
+   "string lcs(const string& a, const string& b) {",
+   "    int n = a.size(), m = b.size(); vector<vi> dp(n + 1, vi(m + 1, 0));",
+   "    for (int i = 1; i <= n; i++) for (int j = 1; j <= m; j++)",
+   "        dp[i][j] = a[i - 1] == b[j - 1] ? dp[i - 1][j - 1] + 1 : max(dp[i - 1][j], dp[i][j - 1]);",
+   "    string res; int i = n, j = m;",
+   "    while (i > 0 && j > 0) {",
+   "        if (a[i - 1] == b[j - 1]) { res += a[i - 1]; i--; j--; }",
+   "        else if (dp[i - 1][j] >= dp[i][j - 1]) i--; else j--;",
+   "    }",
+   "    reverse(all(res)); return res;",
+   "}",
+   "int edit_distance(const string& a, const string& b) {",
+   "    int n = a.size(), m = b.size(); vector<vi> dp(n + 1, vi(m + 1, 0));",
+   "    for (int i = 0; i <= n; i++) dp[i][0] = i;",
+   "    for (int j = 0; j <= m; j++) dp[0][j] = j;",
+   "    for (int i = 1; i <= n; i++) for (int j = 1; j <= m; j++)",
+   "        dp[i][j] = min({dp[i - 1][j] + 1, dp[i][j - 1] + 1, dp[i - 1][j - 1] + (a[i - 1] != b[j - 1])});",
+   "    return dp[n][m];",
+   "}"
+  ],
+  "description": "[07_dp] LCS con reconstruccion, distancia de edicion (Levenshtein), LCS de permutaciones via LIS | O(n m)"
+ },
+ "lis": {
+  "prefix": [
+   "lis"
+  ],
+  "body": [
+   "vector<int> lis(const vector<int>& a, bool strict = true) { // devuelve los indices de una LIS",
+   "    int n = a.size(); vector<int> d, id, par(n, -1); // d[k] = menor cola de longitud k+1 (valores), id[k] = su indice",
+   "    for (int i = 0; i < n; i++) {",
+   "        int k = (strict ? lower_bound(all(d), a[i]) : upper_bound(all(d), a[i])) - d.begin();",
+   "        if (k == (int)d.size()) { d.push_back(a[i]); id.push_back(i); } else { d[k] = a[i]; id[k] = i; }",
+   "        par[i] = k ? id[k - 1] : -1;",
+   "    }",
+   "    vector<int> res;",
+   "    for (int i = id.empty() ? -1 : id.back(); i != -1; i = par[i]) res.push_back(i);",
+   "    reverse(all(res)); return res;",
+   "}"
+  ],
+  "description": "[07_dp] LIS (subsecuencia creciente mas larga) con reconstruccion; estricta o no estricta | O(n log n)"
+ },
+ "sos_dp": {
+  "prefix": [
+   "sos_dp"
+  ],
+  "body": [
+   "void sos_subsets(vll& f, int n) { for (int i = 0; i < n; i++) for (int m = 0; m < (1 << n); m++) if (m >> i & 1) f[m] += f[m ^ (1 << i)]; }   // f[m] = suma de f[s], s subconjunto de m",
+   "void sos_supersets(vll& f, int n) { for (int i = 0; i < n; i++) for (int m = 0; m < (1 << n); m++) if (!(m >> i & 1)) f[m] += f[m | (1 << i)]; } // f[m] = suma de f[s], s superconjunto de m",
+   "void inv_sos_subsets(vll& f, int n) { for (int i = 0; i < n; i++) for (int m = 0; m < (1 << n); m++) if (m >> i & 1) f[m] -= f[m ^ (1 << i)]; }",
+   "void inv_sos_supersets(vll& f, int n) { for (int i = 0; i < n; i++) for (int m = 0; m < (1 << n); m++) if (!(m >> i & 1)) f[m] -= f[m | (1 << i)]; }"
+  ],
+  "description": "[07_dp] SOS DP: suma sobre subconjuntos / superconjuntos de mascaras y su inversa (Mobius) | O(n 2^n)"
+ },
+ "tree_dp_knapsack": {
+  "prefix": [
+   "tree_dp_knapsack"
+  ],
+  "body": [
+   "// Ejemplo: dp[u][k] = max valor eligiendo k nodos del subarbol de u que incluyen a u (conexos). val[u] = valor",
+   "vector<vll> tree_knap(const vector<vi>& g, const vll& val, int root = 0) {",
+   "    int n = g.size(); vector<vll> dp(n);",
+   "    function<void(int, int)> dfs = [&](int u, int p) {",
+   "        dp[u] = {-INF, val[u]}; // dp[u][k], k = 0 invalido para conexos incluyendo u",
+   "        for (int v : g[u]) if (v != p) {",
+   "            dfs(v, u);",
+   "            vll nd(dp[u].size() + dp[v].size() - 1, -INF);",
+   "            for (int i = 1; i < (int)dp[u].size(); i++) {",
+   "                nd[i] = max(nd[i], dp[u][i]); // no tomar nada del hijo v",
+   "                for (int j = 1; j < (int)dp[v].size(); j++) if (dp[v][j] > -INF) nd[i + j] = max(nd[i + j], dp[u][i] + dp[v][j]);",
+   "            }",
+   "            dp[u] = nd;",
+   "            dp[v].clear(); dp[v].shrink_to_fit();",
+   "        }",
+   "    };",
+   "    dfs(root, -1); return dp;",
+   "}"
+  ],
+  "description": "[07_dp] DP en arbol tipo mochila (elegir k nodos con conexion a la raiz) mezclando por tamanos | O(n^2) total (propiedad de mezcla por tamanos)"
+ },
+ "bit_tricks": {
+  "prefix": [
+   "bit_tricks"
+  ],
+  "body": [
+   "inline int popcnt(ll x) { return __builtin_popcountll(x); }",
+   "inline int ctz_(ll x) { return __builtin_ctzll(x); }               // x != 0",
+   "inline int log2_floor(ll x) { return 63 - __builtin_clzll(x); }    // x > 0",
+   "inline ll lowbit(ll x) { return x & -x; }",
+   "inline bool is_pow2(ll x) { return x > 0 && !(x & (x - 1)); }",
+   "inline ll next_pow2(ll x) { return x <= 1 ? 1 : 1LL << (64 - __builtin_clzll(x - 1)); }",
+   "inline ll gray(ll x) { return x ^ (x >> 1); }",
+   "inline ll gray_inv(ll g) { ll x = 0; for (; g; g >>= 1) x ^= g; return x; }",
+   "inline unsigned rev_bits32(unsigned x) { x = ((x >> 1) & 0x55555555u) | ((x & 0x55555555u) << 1); x = ((x >> 2) & 0x33333333u) | ((x & 0x33333333u) << 2); x = ((x >> 4) & 0x0F0F0F0Fu) | ((x & 0x0F0F0F0Fu) << 4); x = ((x >> 8) & 0x00FF00FFu) | ((x & 0x00FF00FFu) << 8); return (x >> 16) | (x << 16); }",
+   "ll xor_upto(ll n) { switch (n & 3) { case 0: return n; case 1: return 1; case 2: return n + 1; default: return 0; } } // 0 ^ 1 ^ ... ^ n",
+   "ll count_bit_upto(ll n, int b) { // cuantos x en [0, n] tienen el bit b encendido",
+   "    ll full = (n + 1) >> (b + 1) << b, rem = (n + 1) & ((1LL << (b + 1)) - 1);",
+   "    return full + max(0LL, rem - (1LL << b));",
+   "}",
+   "// subconjuntos de una mascara m (incluye 0):   for (int s = m; ; s = (s - 1) & m) { ...; if (!s) break; }",
+   "// mascaras de n bits con k bits (Gosper):      for (int x = (1 << k) - 1; x < (1 << n); ) { ...; int c = x & -x, r = x + c; x = (((r ^ x) >> 2) / c) | r; }",
+   "// todos los submasks de todas las mascaras: O(3^n)"
+  ],
+  "description": "[08_bits] Trucos de bits: lowbit, popcount, log2, potencias de 2, Gray, inversion de bits, XOR 0..n, subconjuntos, Gosper | O(1)"
+ },
+ "bitset_utils": {
+  "prefix": [
+   "bitset_utils"
+  ],
+  "body": [
+   "// for (int i = b._Find_first(); i < (int)b.size(); i = b._Find_next(i)) { ... }   // itera bits en 1",
+   "// b |= b << x;            // subset sum / alcanzabilidad",
+   "// (a & b).count();        // tamano de interseccion",
+   "// bitset<N> mask = (bitset<N>(1) << k) - 1;  // k bits bajos encendidos",
+   "template <size_t N> vector<int> bits_on(const bitset<N>& b) {",
+   "    vector<int> r; for (int i = b._Find_first(); i < (int)N; i = b._Find_next(i)) r.push_back(i); return r;",
+   "}"
+  ],
+  "description": "[08_bits] Utilidades de bitset: iterar bits encendidos, primer/siguiente bit, shift-or tipicos | O(N / 64) por operacion"
+ },
+ "xor_basis": {
+  "prefix": [
+   "xor_basis"
+  ],
+  "body": [
+   "struct XorBasis {",
+   "    static const int B = 60; ll b[B] = {}; int rank_ = 0;",
+   "    bool insert(ll x) { // true si aumento el rango",
+   "        for (int i = B - 1; i >= 0; i--) if (x >> i & 1) {",
+   "            if (!b[i]) { b[i] = x; rank_++; return true; }",
+   "            x ^= b[i];",
+   "        }",
+   "        return false;",
+   "    }",
+   "    bool contains(ll x) { for (int i = B - 1; i >= 0; i--) if (x >> i & 1) { if (!b[i]) return false; x ^= b[i]; } return true; }",
+   "    ll max_xor(ll x = 0) { for (int i = B - 1; i >= 0; i--) if ((x ^ b[i]) > x) x ^= b[i]; return x; }",
+   "    ll kth_smallest(ll k) { // k desde 0 sobre los 2^rank valores distintos del span (0 es el menor)",
+   "        vll v; for (int i = 0; i < B; i++) if (b[i]) { for (int j = i - 1; j >= 0; j--) if (b[i] >> j & 1 && b[j]) b[i] ^= b[j]; }",
+   "        for (int i = 0; i < B; i++) if (b[i]) v.push_back(b[i]);",
+   "        ll r = 0; for (int i = 0; i < (int)v.size(); i++) if (k >> i & 1) r ^= v[i];",
+   "        return r;",
+   "    }",
+   "};"
+  ],
+  "description": "[08_bits] Base lineal XOR (Gauss sobre bits): insertar, pertenece, maximo XOR, k-esimo menor XOR | O(B) por operacion"
+ },
+ "binary_search": {
+  "prefix": [
+   "binary_search"
+  ],
+  "body": [
+   "template <class F> ll bs_first_true(ll lo, ll hi, F ok) { // menor x en [lo, hi] con ok(x) (monotono F..FT..T); hi+1 si ninguno",
+   "    while (lo < hi) { ll m = lo + (hi - lo) / 2; if (ok(m)) hi = m; else lo = m + 1; }",
+   "    return ok(lo) ? lo : lo + 1;",
+   "}",
+   "template <class F> ll bs_last_true(ll lo, ll hi, F ok) { // mayor x en [lo, hi] con ok(x) (T..TF..F); lo-1 si ninguno",
+   "    while (lo < hi) { ll m = lo + (hi - lo + 1) / 2; if (ok(m)) lo = m; else hi = m - 1; }",
+   "    return ok(lo) ? lo : lo - 1;",
+   "}",
+   "template <class F> double bs_real(double lo, double hi, F ok, int it = 100) { for (int i = 0; i < it; i++) { double m = (lo + hi) / 2; if (ok(m)) hi = m; else lo = m; } return hi; }",
+   "template <class F> double ternary_max(double lo, double hi, F f, int it = 100) { for (int i = 0; i < it; i++) { double a = lo + (hi - lo) / 3, b = hi - (hi - lo) / 3; if (f(a) < f(b)) lo = a; else hi = b; } return (lo + hi) / 2; }",
+   "template <class F> ll ternary_int_min(ll lo, ll hi, F f) { // f estrictamente unimodal (valle)",
+   "    while (hi - lo > 2) { ll m1 = lo + (hi - lo) / 3, m2 = hi - (hi - lo) / 3; if (f(m1) < f(m2)) hi = m2; else lo = m1; }",
+   "    ll best = lo; for (ll x = lo + 1; x <= hi; x++) if (f(x) < f(best)) best = x; return best;",
+   "}"
+  ],
+  "description": "[09_misc] Busqueda binaria sobre la respuesta (entera y real), busqueda ternaria entera y real | O(log rango)"
+ },
+ "coord_compress": {
+  "prefix": [
+   "coord_compress"
+  ],
+  "body": [
+   "template <class T> struct Compress {",
+   "    vector<T> v;",
+   "    Compress(vector<T> a = {}) : v(a) { build(); }",
+   "    void add(T x) { v.push_back(x); }",
+   "    void build() { sort(all(v)); v.erase(unique(all(v)), v.end()); }",
+   "    int get(T x) const { return lower_bound(all(v), x) - v.begin(); }   // indice comprimido de x",
+   "    T value(int i) const { return v[i]; }",
+   "    int size() const { return v.size(); }",
+   "};"
+  ],
+  "description": "[09_misc] Compresion de coordenadas (ordenar + unique) con consulta por busqueda binaria | O(n log n)"
+ },
+ "fast_io": {
+  "prefix": [
+   "fast_io"
+  ],
+  "body": [
+   "namespace FastIO {",
+   "static char ibuf[1 << 25]; size_t ipos = 0, ilen = 0;",
+   "inline int gc() { if (ipos == ilen) { ilen = fread(ibuf, 1, sizeof(ibuf), stdin); ipos = 0; if (!ilen) return -1; } return ibuf[ipos++]; }",
+   "template <class T> inline bool read(T& x) {",
+   "    int c = gc(); while (c != -1 && c != '-' && (c < '0' || c > '9')) c = gc();",
+   "    if (c == -1) return false;",
+   "    bool neg = false; if (c == '-') { neg = true; c = gc(); }",
+   "    x = 0; while (c >= '0' && c <= '9') { x = x * 10 + (c - '0'); c = gc(); }",
+   "    if (neg) x = -x; return true;",
+   "}",
+   "inline bool read(string& s) { int c = gc(); while (c != -1 && isspace(c)) c = gc(); if (c == -1) return false; s.clear(); while (c != -1 && !isspace(c)) { s += (char)c; c = gc(); } return true; }",
+   "}",
+   "ostream& operator<<(ostream& o, __int128 x) { if (x < 0) { o << '-'; x = -x; } if (x == 0) return o << 0; string s; while (x > 0) { s += char('0' + (int)(x % 10)); x /= 10; } reverse(all(s)); return o << s; }",
+   "// uso: FastIO::read(n); FastIO::read(a[i]);"
+  ],
+  "description": "[09_misc] Lectura/escritura rapida con fread/fwrite (ints, ll, strings) y impresion de __int128 | O(tamano de entrada)"
+ },
+ "game_theory": {
+  "prefix": [
+   "game_theory"
+  ],
+  "body": [
+   "int mex(const vector<int>& v) { vector<bool> s(v.size() + 2, false); for (int x : v) if (x < (int)s.size()) s[x] = true; int m = 0; while (s[m]) m++; return m; }",
+   "// grundy[i] = mex{ grundy[i - mv] : mv en moves, i - mv >= 0 }  (juego de una pila de tamano i)",
+   "vector<int> grundy_table(int n, const vector<int>& moves) {",
+   "    vector<int> g(n + 1, 0);",
+   "    for (int i = 1; i <= n; i++) { vector<int> nx; for (int m : moves) if (i >= m) nx.push_back(g[i - m]); g[i] = mex(nx); }",
+   "    return g;",
+   "}",
+   "// Suma de juegos: XOR de grundy. Nim: gana el primero si XOR de pilas != 0.",
+   "// Misere Nim: igual salvo que si todas las pilas <= 1 gana el primero si la cantidad de pilas es par."
+  ],
+  "description": "[09_misc] Sprague-Grundy: mex, grundy por DP para juegos con movimientos dados; Nim | O(n * movimientos)"
+ },
+ "grid_utils": {
+  "prefix": [
+   "grid_utils"
+  ],
+  "body": [
+   "const int dx4[] = {1, -1, 0, 0}, dy4[] = {0, 0, 1, -1};",
+   "const int dx8[] = {1, 1, 1, 0, 0, -1, -1, -1}, dy8[] = {1, 0, -1, 1, -1, 1, 0, -1};",
+   "vector<vi> grid_bfs(const vector<string>& g, int sx, int sy, char wall = '#') { // -1 = inalcanzable",
+   "    int n = g.size(), m = g[0].size(); vector<vi> d(n, vi(m, -1)); queue<pii> q;",
+   "    d[sx][sy] = 0; q.push({sx, sy});",
+   "    while (!q.empty()) {",
+   "        auto [x, y] = q.front(); q.pop();",
+   "        for (int k = 0; k < 4; k++) {",
+   "            int nx = x + dx4[k], ny = y + dy4[k];",
+   "            if (nx < 0 || ny < 0 || nx >= n || ny >= m || g[nx][ny] == wall || d[nx][ny] != -1) continue;",
+   "            d[nx][ny] = d[x][y] + 1; q.push({nx, ny});",
+   "        }",
+   "    }",
+   "    return d;",
+   "}",
+   "int grid_components(const vector<string>& g, char wall = '#') {",
+   "    int n = g.size(), m = g[0].size(), c = 0; vector<vector<bool>> vis(n, vector<bool>(m, false));",
+   "    for (int i = 0; i < n; i++) for (int j = 0; j < m; j++) if (!vis[i][j] && g[i][j] != wall) {",
+   "        c++; vector<pii> st = {{i, j}}; vis[i][j] = true;",
+   "        while (!st.empty()) {",
+   "            auto [x, y] = st.back(); st.pop_back();",
+   "            for (int k = 0; k < 4; k++) { int nx = x + dx4[k], ny = y + dy4[k];",
+   "                if (nx >= 0 && ny >= 0 && nx < n && ny < m && !vis[nx][ny] && g[nx][ny] != wall) { vis[nx][ny] = true; st.push_back({nx, ny}); } }",
+   "        }",
+   "    }",
+   "    return c;",
+   "}"
+  ],
+  "description": "[09_misc] Utilidades de grilla: direcciones, limites, BFS de distancias, componentes conexas | O(n m)"
+ },
+ "int128_utils": {
+  "prefix": [
+   "int128_utils"
+  ],
+  "body": [
+   "string i128_to_string(__int128 x) { if (x == 0) return \"0\"; bool neg = x < 0; if (neg) x = -x; string s; while (x > 0) { s += char('0' + (int)(x % 10)); x /= 10; } if (neg) s += '-'; reverse(all(s)); return s; }",
+   "__int128 i128_from_string(const string& s) { __int128 r = 0; bool neg = false; for (char c : s) { if (c == '-') neg = true; else r = r * 10 + (c - '0'); } return neg ? -r : r; }",
+   "bool mul_overflow(ll a, ll b, ll& res) { return __builtin_mul_overflow(a, b, &res); }",
+   "bool add_overflow(ll a, ll b, ll& res) { return __builtin_add_overflow(a, b, &res); }"
+  ],
+  "description": "[09_misc] Utilidades __int128: impresion, lectura, multiplicacion segura con verificacion de overflow | O(digitos)"
+ },
+ "inversions": {
+  "prefix": [
+   "inversions"
+  ],
+  "body": [
+   "ll count_inversions(vector<int> a) {",
+   "    int n = a.size(); vector<int> tmp(n);",
+   "    function<ll(int, int)> go = [&](int l, int r) -> ll {",
+   "        if (r - l <= 1) return 0;",
+   "        int m = (l + r) / 2; ll res = go(l, m) + go(m, r);",
+   "        int i = l, j = m, k = l;",
+   "        while (i < m && j < r) { if (a[i] <= a[j]) tmp[k++] = a[i++]; else { tmp[k++] = a[j++]; res += m - i; } }",
+   "        while (i < m) tmp[k++] = a[i++];",
+   "        while (j < r) tmp[k++] = a[j++];",
+   "        copy(tmp.begin() + l, tmp.begin() + r, a.begin() + l);",
+   "        return res;",
+   "    };",
+   "    return go(0, n);",
+   "}",
+   "vector<int> kth_permutation(int n, ll k) { // k desde 0, permutacion de 0..n-1 (n <= 20 si k cabe en ll)",
+   "    vector<ll> f(n + 1, 1); for (int i = 1; i <= n; i++) f[i] = f[i - 1] * i;",
+   "    vector<int> pool(n), res; iota(all(pool), 0);",
+   "    for (int i = n - 1; i >= 0; i--) { ll q = k / f[i]; k %= f[i]; res.push_back(pool[q]); pool.erase(pool.begin() + q); }",
+   "    return res;",
+   "}"
+  ],
+  "description": "[09_misc] Contar inversiones (merge sort) y k-esima permutacion (sistema factoradico) | O(n log n)"
+ },
+ "meet_in_the_middle": {
+  "prefix": [
+   "meet_in_the_middle"
+  ],
+  "body": [
+   "ll count_subsets_le(const vll& a, ll T) {",
+   "    int n = a.size(), h = n / 2;",
+   "    auto gen = [&](int l, int r) { vll s = {0}; for (int i = l; i < r; i++) { int k = s.size(); for (int j = 0; j < k; j++) s.push_back(s[j] + a[i]); } sort(all(s)); return s; };",
+   "    vll A = gen(0, h), B = gen(h, n); ll res = 0;",
+   "    for (ll x : A) res += upper_bound(all(B), T - x) - B.begin();",
+   "    return res;",
+   "}"
+  ],
+  "description": "[09_misc] Meet in the middle: contar subconjuntos con suma <= T (n <= ~40) | O(2^(n/2) * n)"
+ },
+ "prefix_sums": {
+  "prefix": [
+   "prefix_sums"
+  ],
+  "body": [
+   "struct Prefix2D {",
+   "    int n, m; vector<vll> p;",
+   "    Prefix2D(const vector<vll>& a) : n(a.size()), m(a[0].size()), p(n + 1, vll(m + 1, 0)) {",
+   "        for (int i = 0; i < n; i++) for (int j = 0; j < m; j++) p[i + 1][j + 1] = a[i][j] + p[i][j + 1] + p[i + 1][j] - p[i][j];",
+   "    }",
+   "    ll query(int x1, int y1, int x2, int y2) const { return p[x2 + 1][y2 + 1] - p[x1][y2 + 1] - p[x2 + 1][y1] + p[x1][y1]; } // [x1,x2]x[y1,y2]",
+   "};",
+   "struct Diff2D { // sumar v a un rectangulo, luego build() para obtener la matriz final",
+   "    int n, m; vector<vll> d;",
+   "    Diff2D(int n, int m) : n(n), m(m), d(n + 2, vll(m + 2, 0)) {}",
+   "    void add(int x1, int y1, int x2, int y2, ll v) { d[x1][y1] += v; d[x1][y2 + 1] -= v; d[x2 + 1][y1] -= v; d[x2 + 1][y2 + 1] += v; }",
+   "    vector<vll> build() { vector<vll> a(n, vll(m)); for (int i = 0; i < n; i++) for (int j = 0; j < m; j++) { if (i) d[i][j] += d[i - 1][j]; if (j) d[i][j] += d[i][j - 1]; if (i && j) d[i][j] -= d[i - 1][j - 1]; a[i][j] = d[i][j]; } return a; }",
+   "};",
+   "// 1D: pre[i+1] = pre[i] + a[i]; suma [l,r] = pre[r+1]-pre[l]. Diferencias: d[l]+=v, d[r+1]-=v, luego prefijo."
+  ],
+  "description": "[09_misc] Sumas de prefijos 1D/2D y arreglos de diferencias (update de rango offline) 1D/2D | O(n) build, O(1) query"
+ },
+ "random_gen": {
+  "prefix": [
+   "random_gen"
+  ],
+  "body": [
+   "ll rnd(ll a, ll b) { return a + (ll)(rng() % (unsigned long long)(b - a + 1)); }",
+   "vector<int> rnd_perm(int n) { vector<int> p(n); iota(all(p), 1); shuffle(all(p), rng); return p; }",
+   "vector<pii> rnd_tree(int n) { vector<pii> e; for (int i = 2; i <= n; i++) e.push_back({(int)rnd(1, i - 1), i}); return e; } // nodos 1..n",
+   "vector<pii> rnd_graph(int n, int m) { // simple, sin lazos (m <= n(n-1)/2)",
+   "    set<pii> s; vector<pii> e;",
+   "    while ((int)e.size() < m) { int u = rnd(1, n), v = rnd(1, n); if (u == v) continue; if (u > v) swap(u, v); if (s.insert({u, v}).second) e.push_back({u, v}); }",
+   "    return e;",
+   "}",
+   "string rnd_string(int n, int alpha = 26, char base = 'a') { string s(n, base); for (auto& c : s) c = base + rnd(0, alpha - 1); return s; }"
+  ],
+  "description": "[09_misc] Generadores aleatorios para stress tests: enteros, permutaciones, arboles, grafos, strings | O(n)"
+ },
+ "two_pointers": {
+  "prefix": [
+   "two_pointers"
+  ],
+  "body": [
+   "int longest_subarray_sum_le(const vll& a, ll K) { // elementos no negativos",
+   "    int best = 0; ll s = 0;",
+   "    for (int l = 0, r = 0; r < (int)a.size(); r++) {",
+   "        s += a[r];",
+   "        while (s > K) s -= a[l++];",
+   "        best = max(best, r - l + 1);",
+   "    }",
+   "    return best;",
+   "}"
+  ],
+  "description": "[09_misc] Plantilla de dos punteros: subarreglo mas largo con condicion monotona (ejemplo: suma <= K) | O(n)"
+ }
+}

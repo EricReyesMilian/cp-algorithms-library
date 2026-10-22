@@ -1,0 +1,26 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build debug",
+      "type": "shell",
+      "command": "g++ -std=c++17 -O2 -Wall -Wextra -Wshadow -DLOCAL -fsanitize=address,undefined -g ${file} -o ${fileDirname}/${fileBasenameNoExtension}",
+      "group": { "kind": "build", "isDefault": true },
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "build fast",
+      "type": "shell",
+      "command": "g++ -std=c++17 -O2 ${file} -o ${fileDirname}/${fileBasenameNoExtension}",
+      "group": "build",
+      "problemMatcher": ["$gcc"]
+    },
+    {
+      "label": "run (in.txt)",
+      "type": "shell",
+      "command": "${fileDirname}/${fileBasenameNoExtension} < ${fileDirname}/in.txt",
+      "dependsOn": "build debug",
+      "problemMatcher": []
+    }
+  ]
+}
